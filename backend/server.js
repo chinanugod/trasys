@@ -1,3 +1,5 @@
+const connectDB = require("./config/db");
+
 const express = require("express");
 const cors = require("cors");
 
@@ -14,6 +16,8 @@ app.get("/", (req, res) => {
 
 // Start server
 const PORT = 5000;
+
+connectDB();
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
