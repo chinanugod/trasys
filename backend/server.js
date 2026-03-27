@@ -22,3 +22,7 @@ connectDB();
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// Temporary Test Log model - this will confirm that the model is correctly defined and can be imported without issues.
+const Log = require("./models/Log");
+console.log("Log model loaded:", Log.modelName);
