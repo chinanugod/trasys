@@ -1,52 +1,63 @@
-const mongoose = require("mongoose"); // Import Mongoose - a popular ODM for MongoDB
+ const mongoose = require("mongoose");
 
-// Log Schema - this defines the structure of the log documents in the MongoDB collection.
-const logSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    required: true,
-    enum: ["Movement", "Device", "WorkAccess"],
+// Log Schema
+const logSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      required: true,
+      enum: ["Movement", "Device", "WorkAccess"],
+    },
+
+    sn: {
+      type: Number,
+      required: true,
+    },
+
+    // Movement / General
+    name: String,
+    phone: String,
+    companyName: String,
+    purpose: String,
+    contactPerson: String,
+
+    // Device Log
+    dateIn: Date,
+    dateOut: Date,
+    qtyIn: Number,
+    deviceDescription: String,
+    serialNumber: String,
+
+    // Work Access
+    workArea: String,
+    typeOfWork: String,
+    accessRefNumber: String,
+    authorization: [String], // multiple authorizers
+    keyCollection: String,
+    apoOnDeskName: String,
+
+    // Time tracking
+    timeIn: {
+      type: Date,
+      default: Date.now,
+    },
+    timeOut: Date,
+
+    signIn: String,
+    signOut: String,
+
+    remarks: String,
+
+    // Status control
+    status: {
+      type: String,
+      enum: ["Inside", "Out"],
+      default: "Inside",
+    },
   },
+  {
+    timestamps: true, // adds createdAt and updatedAt automatically
+  }
+);
 
-  sn: {
-    type: Number,
-    required: true,
-  },
-
-  name: String,
-  phone: String,
-  companyName: String,
-  purpose: String,
-
-  dateIn: Date,
-  dateOut: Date,
-  qtyIn: Number,
-  deviceDescription: String,
-  serialNumber: String,
-
-  workArea: String,
-  typeOfWork: String,
-  accessRefNumber: String,
-  authorization: String,
-  keyCollection: String,
-  apoOnDeskName: String,
-
-  timeIn: {
-    type: Date,
-    default: Date.now,
-  },
-  timeOut: Date,
-
-  signIn: String,
-  signOut: String,
-
-  remarks: String,
-
-  status: {
-    type: String,
-    default: "Inside",
-  },
-});
-
-// Export the Log model - this allows us to use the Log model in other parts of our application, such as in routes or controllers.
 module.exports = mongoose.model("Log", logSchema);
