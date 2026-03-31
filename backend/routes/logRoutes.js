@@ -17,4 +17,14 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Get all logs
+router.get("/", async (req, res) => {
+  try {
+    const logs = await Log.find().sort({ timeIn: -1 });
+    res.json(logs);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;
