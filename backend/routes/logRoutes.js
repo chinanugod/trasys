@@ -2,12 +2,24 @@ const express = require("express");
 const router = express.Router();
 const Log = require("../models/Log");
 
-// Create a new log
+
+// Create a new log (with auto S/N)
 router.post("/", async (req, res) => {
   console.log("POST request received");
 
   try {
-    const newLog = new Log(req.body);
+    // Find last log by S/N
+    const lastLog = await Log.findOne().sort({ sn: -1 });
+
+    // Generate next S/N
+    const nextSN = lastLog ? lastLog.sn + 1 : 1;
+
+    // Create new log with auto SN
+    const newLog = new Log({
+      ...req.body,
+      sn: nextSN,
+    });
+
     const savedLog = await newLog.save();
 
     res.status(201).json(savedLog);
