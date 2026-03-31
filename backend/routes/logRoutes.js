@@ -17,15 +17,30 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Get all logs
+// Get all logs (with filtering)
 router.get("/", async (req, res) => {
   try {
-    const logs = await Log.find().sort({ timeIn: -1 });
+    const { type, status } = req.query;
+
+    let filter = {};
+
+    if (type) {
+      filter.type = type;
+    }
+
+    if (status) {
+      filter.status = status;
+    }
+
+    const logs = await Log.find(filter).sort({ timeIn: -1 });
+
     res.json(logs);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // Check-out log
 router.patch("/:id/checkout", async (req, res) => { // what this line does is it defines a PATCH route for the endpoint "/:id/checkout". The ":id" part is a route parameter that will capture the ID of the log entry we want to update. When a PATCH request is made to this endpoint, the server will execute the callback function to handle the request and update the log entry with the specified ID.
