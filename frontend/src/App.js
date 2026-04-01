@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function App() {
   const [formData, setFormData] = useState({
@@ -8,7 +8,25 @@ function App() {
     purpose: "",
   });
 
-  // Handle input change
+  const [logs, setLogs] = useState([]);
+
+  // Fetch logs from backend
+  const fetchLogs = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/logs");
+      const data = await res.json();
+      setLogs(data);
+    } catch (error) {
+      console.error("Error fetching logs:", error);
+    }
+  };
+
+  // Run once when page loads
+  useEffect(() => {
+    fetchLogs();
+  }, []);
+
+  // Handle input
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -16,7 +34,7 @@ function App() {
     });
   };
 
-  // Handle form submit
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -26,7 +44,7 @@ function App() {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/logs", {
+      await fetch("http://localhost:5000/api/logs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,21 +52,18 @@ function App() {
         body: JSON.stringify(dataToSend),
       });
 
-      const data = await response.json();
-      console.log("Saved:", data);
+      alert("Log saved!");
 
-      alert("Log saved successfully!");
-
-      // Reset form
       setFormData({
         name: "",
         phone: "",
         companyName: "",
         purpose: "",
       });
+
+      fetchLogs(); // refresh table
     } catch (error) {
-      console.error("Error:", error);
-      alert("Error saving log");
+      console.error(error);
     }
   };
 
@@ -59,51 +74,50 @@ function App() {
       <h2>Add Movement Log</h2>
 
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleChange}
-        />
+        <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} />
         <br /><br />
 
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone"
-          value={formData.phone}
-          onChange={handleChange}
-        />
+        <input name="phone" placeholder="Phone" value={formData.phone} onChange={handleChange} />
         <br /><br />
 
-        <input
-          type="text"
-          name="companyName"
-          placeholder="Company"
-          value={formData.companyName}
-          onChange={handleChange}
-        />
+        <input name="companyName" placeholder="Company" value={formData.companyName} onChange={handleChange} />
         <br /><br />
 
-        <input
-          type="text"
-          name="purpose"
-          placeholder="Purpose"
-          value={formData.purpose}
-          onChange={handleChange}
-        />
+        <input name="purpose" placeholder="Purpose" value={formData.purpose} onChange={handleChange} />
         <br /><br />
 
         <button type="submit">Submit</button>
       </form>
+
+      <hr />
+
+      <h2>Logs</h2>
+
+      <table border="1" cellPadding="10">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Name</th>
+            <th>Company</th>
+            <th>Status</th>
+            <th>Time In</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {logs.map((log) => (
+            <tr key={log._id}>
+              <td>{log.sn}</td>
+              <td>{log.name}</td>
+              <td>{log.companyName}</td>
+              <td>{log.status}</td>
+              <td>{new Date(log.timeIn).toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
 
 export default App;
-
-/*This code defines a React component for a simple form that allows users to input their name, 
-phone number, company name, and purpose. When the form is submitted, 
-it sends a POST request to the backend API to save the log data. 
-The form also resets after submission, and any errors during the process are caught and displayed to the user.*/
