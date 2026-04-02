@@ -67,6 +67,19 @@ function App() {
     }
   };
 
+  const handleCheckout = async (id) => {
+    
+    try {
+      await fetch(`http://localhost:5000/api/logs/${id}/checkout`, {
+        method: "PATCH",
+      });
+
+      fetchLogs(); // refresh table
+    } catch (error) {
+      console.error("Checkout error:", error);
+    }
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Trasys Log System</h1>
@@ -101,6 +114,7 @@ function App() {
             <th>Company</th>
             <th>Status</th>
             <th>Time In</th>
+            <th>Action</th>
           </tr>
         </thead>
 
@@ -112,6 +126,16 @@ function App() {
               <td>{log.companyName}</td>
               <td>{log.status}</td>
               <td>{new Date(log.timeIn).toLocaleString()}</td>
+
+              <td>
+                {log.status === "Inside" ? (
+                  <button onClick={() => handleCheckout(log._id)}>
+                    Check-Out
+                  </button>
+                ) : (
+                  "Completed"
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
