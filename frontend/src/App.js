@@ -8,13 +8,20 @@ function App() {
     purpose: "",
   });
 
+   const [filter, setFilter] = useState("");
+
   const [logs, setLogs] = useState([]);
 
   // Fetch logs from backend
-  const fetchLogs = async () => {
+  const fetchLogs = async (filterValue = "") => {
     try {
-      const res = await fetch("http://localhost:5000/api/logs");
-      const data = await res.json();
+      let url = "http://localhost:5000/api/logs";
+      if (filterValue) {
+        url += `?${filterValue}`;
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
       setLogs(data);
     } catch (error) {
       console.error("Error fetching logs:", error);
@@ -23,8 +30,8 @@ function App() {
 
   // Run once when page loads
   useEffect(() => {
-    fetchLogs();
-  }, []);
+    fetchLogs(filter);
+  }, [filter]);
 
   // Handle input
   const handleChange = (e) => {
@@ -82,9 +89,9 @@ function App() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Trasys Log System</h1>
+      <h1>Trasys</h1>
 
-      <h2>Add Movement Log</h2>
+      <h2>Add Movement</h2>
 
       <form onSubmit={handleSubmit}>
         <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} />
@@ -103,8 +110,14 @@ function App() {
       </form>
 
       <hr />
+ 
+ <h2>Filters</h2>
 
-      <h2>Logs</h2>
+<button onClick={() => setFilter("")}>All</button>
+<button onClick={() => setFilter("type=Movement")}>Movement</button>
+<button onClick={() => setFilter("type=Device")}>Device</button>
+<button onClick={() => setFilter("type=WorkAccess")}>Work Access</button>
+<button onClick={() => setFilter("status=Inside")}>Inside Only</button>
 
       <table border="1" cellPadding="10">
         <thead>
