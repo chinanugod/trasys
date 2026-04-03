@@ -8,9 +8,11 @@ function App() {
     purpose: "",
   });
 
-   const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState("");
 
   const [logs, setLogs] = useState([]);
+
+  const [logType, setLogType] = useState("Movement"); // Default log type
 
   // Fetch logs from backend
   const fetchLogs = async (filterValue = "") => {
@@ -46,7 +48,7 @@ function App() {
     e.preventDefault();
 
     const dataToSend = {
-      type: "Movement",
+      type: logType, // Add log type to data
       ...formData,
     };
 
@@ -91,23 +93,68 @@ function App() {
     <div style={{ padding: "20px" }}>
       <h1>Trasys</h1>
 
-      <h2>Add Movement</h2>
+      <h2>Select Log Type</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} />
-        <br /><br />
+  <select value={logType} onChange={(e) => setLogType(e.target.value)}>
+    <option value="Movement">Movement</option>
+    <option value="Device">Device</option>
+    <option value="WorkAccess">Work Access</option>
+  </select>
 
-        <input name="phone" placeholder="Phone" value={formData.phone} onChange={handleChange} />
-        <br /><br />
+ <form onSubmit={handleSubmit}>
+  {logType === "Movement" && (
+    <>
+      <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} />
+      <br /><br />
 
-        <input name="companyName" placeholder="Company" value={formData.companyName} onChange={handleChange} />
-        <br /><br />
+      <input name="phone" placeholder="Phone" value={formData.phone} onChange={handleChange} />
+      <br /><br />
 
-        <input name="purpose" placeholder="Purpose" value={formData.purpose} onChange={handleChange} />
-        <br /><br />
+      <input name="companyName" placeholder="Company" value={formData.companyName} onChange={handleChange} />
+      <br /><br />
 
-        <button type="submit">Submit</button>
-      </form>
+      <input name="purpose" placeholder="Purpose" value={formData.purpose} onChange={handleChange} />
+      <br /><br />
+    </>
+  )}
+
+  {logType === "Device" && (
+    <>
+      <input name="companyName" placeholder="Company" value={formData.companyName} onChange={handleChange} />
+      <br /><br />
+
+      <input name="deviceDescription" placeholder="Device Description" onChange={handleChange} />
+      <br /><br />
+
+      <input name="serialNumber" placeholder="Serial Number" onChange={handleChange} />
+      <br /><br />
+
+      <input name="qtyIn" type="number" placeholder="Quantity" onChange={handleChange} />
+      <br /><br />
+    </>
+  )}
+
+  {logType === "WorkAccess" && (
+    <>
+      <input name="companyName" placeholder="Company" value={formData.companyName} onChange={handleChange} />
+      <br /><br />
+
+      <input name="contactPerson" placeholder="Contact Person" onChange={handleChange} />
+      <br /><br />
+
+      <input name="workArea" placeholder="Work Area" onChange={handleChange} />
+      <br /><br />
+
+      <input name="typeOfWork" placeholder="Type of Work" onChange={handleChange} />
+      <br /><br />
+
+      <input name="accessRefNumber" placeholder="Reference Number" onChange={handleChange} />
+      <br /><br />
+    </>
+  )}
+
+  <button type="submit">Submit</button>
+</form>
 
       <hr />
  
