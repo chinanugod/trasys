@@ -90,85 +90,115 @@ function App() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Trasys</h1>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>Trasys Dashboard</h1>
 
-      <h2>Select Log Type</h2>
+      <h4>Select Log Type</h4>
 
-  <select value={logType} onChange={(e) => setLogType(e.target.value)}>
+    <select value={logType} onChange={(e) => setLogType(e.target.value)}>
     <option value="Movement">Movement</option>
     <option value="Device">Device</option>
     <option value="WorkAccess">Work Access</option>
-  </select>
+    </select>
 
- <form onSubmit={handleSubmit}>
+  <hr />
+
+  {/* Main Layout */}
+  <div style={{ display: "flex", gap: "50px" }}>
+
+    {/* LEFT SIDE — FORM */} 
+    <div style={{ flex: 1 }}>
+
+      <h2>Add Log</h2>
+
+       {/* Form fields will change based on log type */}
+<form onSubmit={handleSubmit}>
   {logType === "Movement" && (
     <>
-      <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} />
+      <input name="name" placeholder="Name" value={formData.name} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="phone" placeholder="Phone" value={formData.phone} onChange={handleChange} />
+      <input name="phone" placeholder="Phone" value={formData.phone} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="companyName" placeholder="Company" value={formData.companyName} onChange={handleChange} />
+      <input name="companyName" placeholder="Company" value={formData.companyName} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="purpose" placeholder="Purpose" value={formData.purpose} onChange={handleChange} />
+      <input name="purpose" placeholder="Purpose" value={formData.purpose} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
     </>
   )}
 
   {logType === "Device" && (
     <>
-      <input name="companyName" placeholder="Company" value={formData.companyName} onChange={handleChange} />
+      <input name="name" placeholder="Name" value={formData.name} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+      
+      <input name="companyName" placeholder="Company" value={formData.companyName} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="deviceDescription" placeholder="Device Description" onChange={handleChange} />
+      <input name="deviceDescription" placeholder="Device Description" style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="serialNumber" placeholder="Serial Number" onChange={handleChange} />
+      <input name="serialNumber" placeholder="Serial Number" style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="qtyIn" type="number" placeholder="Quantity" onChange={handleChange} />
+      <input name="qtyIn" type="number" placeholder="Quantity In" style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
-    </>
+
+      <input name="qtyOut" type="number" placeholder="Quantity Out" style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+    </> 
   )}
 
   {logType === "WorkAccess" && (
     <>
-      <input name="companyName" placeholder="Company" value={formData.companyName} onChange={handleChange} />
+      <input name="name" placeholder="Name" value={formData.name} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="contactPerson" placeholder="Contact Person" onChange={handleChange} />
+      <input name="phone" placeholder="Phone" value={formData.phone} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+      
+      <input name="companyName" placeholder="Company" value={formData.companyName} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="workArea" placeholder="Work Area" onChange={handleChange} />
+      <input name="contactPerson" placeholder="Contact Person" style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="typeOfWork" placeholder="Type of Work" onChange={handleChange} />
+      <input name="workArea" placeholder="Work Area" style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="accessRefNumber" placeholder="Reference Number" onChange={handleChange} />
+      <input name="typeOfWork" placeholder="Type of Work" style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="accessRefNumber" placeholder="Reference Number" style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
     </>
   )}
 
-  <button type="submit">Submit</button>
-</form>
-
-      <hr />
+  <button style={{ marginBottom: "10px" }} type="submit">Submit</button>
+</form> 
+      </div> 
+      
+      {/* RIGHT SIDE — TABLE + FILTER */} 
+      <div style={{ flex: 2 }}>
  
  <h2>Filters</h2>
 
-<button onClick={() => setFilter("")}>All</button>
-<button onClick={() => setFilter("type=Movement")}>Movement</button>
-<button onClick={() => setFilter("type=Device")}>Device</button>
-<button onClick={() => setFilter("type=WorkAccess")}>Work Access</button>
-<button onClick={() => setFilter("status=Inside")}>Inside Only</button>
+  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("")}>All</button>
+  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=Movement")}>Movement</button>
+  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=Device")}>Device</button>
+  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=WorkAccess")}>Work Access</button>
+  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("status=Inside")}>Inside Only</button>
 
+      <hr />
+
+      <h2>Logs</h2>
+      
       <table border="1" cellPadding="10">
         <thead>
           <tr>
+          
             <th>S/N</th>
             <th>Name</th>
             <th>Company</th>
@@ -196,10 +226,13 @@ function App() {
                   "Completed"
                 )}
               </td>
+              <td>{log.type}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      </div>
+      </div>
     </div>
   );
 }
