@@ -14,6 +14,12 @@ function App() {
 
   const [logType, setLogType] = useState("Movement"); // Default log type
 
+  const activeType =
+  typeof filter === "string" && filter.includes("type=")
+    ? filter.split("=")[1]
+    : null;
+
+ 
   // Fetch logs from backend
   const fetchLogs = async (filterValue = "") => {
     try {
@@ -100,6 +106,68 @@ const handleSubmit = async (e) => {
       console.error("Checkout error:", error);
     }
   };
+
+// Table configuration based on log type
+  const tableConfig = {
+  Movement: [
+    { label: "S/N", key: "sn" },
+    { label: "Name", key: "name" },
+    { label: "Phone", key: "phone" },
+    { label: "Company", key: "companyName" },
+    { label: "Purpose", key: "purpose" },
+    { label: "Status", key: "status" },
+    { label: "Time In", key: "timeIn" },
+  ],
+
+  Vehicle: [
+    { label: "S/N", key: "sn" },
+    { label: "Plate No", key: "plateNumber" },
+    { label: "Driver", key: "driverName" },
+    { label: "Phone", key: "driverPhone" },
+    { label: "Make", key: "vehicleMake" },
+    { label: "Passengers", key: "numberOfPassengers" },
+    { label: "Status", key: "status" },
+    { label: "Time In", key: "timeIn" },
+  ],
+
+  Device: [
+    { label: "S/N", key: "sn" },
+    { label: "Name", key: "name" },
+    { label: "Company", key: "companyName" },
+    { label: "Device", key: "deviceDescription" },
+    { label: "Serial", key: "serialNumber" },
+    { label: "Qty In", key: "qtyIn" },
+    { label: "Qty Out", key: "qtyOut" },
+    { label: "Status", key: "status" },
+  ],
+
+  WorkAccess: [
+    { label: "S/N", key: "sn" },
+    { label: "Name", key: "name" },
+    { label: "Company", key: "companyName" },
+    { label: "Work Area", key: "workArea" },
+    { label: "Type", key: "typeOfWork" },
+    { label: "Ref No", key: "accessRefNumber" },
+    { label: "Status", key: "status" },
+  ],
+
+  CarParkBeat: [
+    { label: "S/N", key: "sn" },
+    { label: "Driver", key: "driverName" },
+    { label: "Phone", key: "driverPhone" },
+    { label: "Plate", key: "plateNumber" },
+    { label: "Color", key: "vehicleColor" },
+    { label: "Remarks", key: "remarks" },
+    { label: "Status", key: "status" },
+  ],
+};
+
+const columnsToUse =
+  activeType && tableConfig[activeType]
+    ? tableConfig[activeType]
+    : tableConfig["Movement"]; // default to Movement columns if type filter is not active
+ 
+if (!Array.isArray(logs)) return null; // or show loading/error
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
@@ -283,42 +351,44 @@ const handleSubmit = async (e) => {
       <hr />
 
       <h2>Logs</h2>
-      
       <table border="1" cellPadding="10">
-        <thead>
-          <tr>
-          
-            <th>S/N</th>
-            <th>Name</th>
-            <th>Company</th>
-            <th>Status</th>
-            <th>Time In</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+          <thead>
+              <tr>
+                {columnsToUse.map((col) => (
+                <th key={col.key}>{col.label}</th>
+                  ))}
+                <th>Action</th>
+              </tr>
+          </thead>
 
-        <tbody>
-          {logs.map((log) => (
-            <tr key={log._id}>
-              <td>{log.sn}</td>
-              <td>{log.name}</td>
-              <td>{log.companyName}</td>
-              <td>{log.status}</td>
-              <td>{new Date(log.timeIn).toLocaleString()}</td>
+  <tbody> 
+    {logs.map((log) => {
+        const columns = columnsToUse;
+    
+    return (
+      <tr key={log._id}>
+        {columns.map((col) => (
+          <td key={col.key}>
+            {col.key === "timeIn"
+              ? new Date(log[col.key]).toLocaleString()
+              : log[col.key]}
+          </td>
+        ))}
 
-              <td>
-                {log.status === "Inside" ? (
-                  <button onClick={() => handleCheckout(log._id)}>
-                    Check-Out
-                  </button>
-                ) : (
-                  "Completed"
-                )}
-              </td>
-              <td>{log.type}</td>
-            </tr>
-          ))}
-        </tbody>
+        <td>
+          {log.status === "Inside" ? (
+            <button onClick={() => handleCheckout(log._id)}>
+              Check-Out
+            </button>
+          ) : (
+            "Completed"
+          )}
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
+         
       </table>
       </div>
       </div>
