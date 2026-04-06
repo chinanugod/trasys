@@ -8,7 +8,7 @@ function App() {
     purpose: "",
   });
 
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState(""); // e.g. "type=Movement" or "status=Inside"
 
   const [logs, setLogs] = useState([]);
 
@@ -30,10 +30,15 @@ function App() {
     }
   };
 
-  // Run once when page loads
+  // Fetch logs on page load and when filter changes
   useEffect(() => {
     fetchLogs(filter);
   }, [filter]);
+
+  // Run once when page loads
+  useEffect(() => {
+    setFormData({});
+  }, [logType]);
 
   // Handle input
   const handleChange = (e) => {
@@ -44,37 +49,44 @@ function App() {
   };
 
   // Submit form
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const dataToSend = {
-      type: logType, // Add log type to data
-      ...formData,
-    };
-
-    try {
-      await fetch("http://localhost:5000/api/logs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
-      });
-
-      alert("Log saved!");
-
-      setFormData({
-        name: "",
-        phone: "",
-        companyName: "",
-        purpose: "",
-      });
-
-      fetchLogs(); // refresh table
-    } catch (error) {
-      console.error(error);
-    }
+  let dataToSend = {
+    type: logType,
+    ...formData,
   };
+
+  // 🔥 Convert comma-separated to array
+  if (dataToSend.vehicleAuthorization) {
+    dataToSend.vehicleAuthorization = dataToSend.vehicleAuthorization
+      .split(",")
+      .map((a) => a.trim());
+  }
+
+  if (dataToSend.workAuthorization) {
+    dataToSend.workAuthorization = dataToSend.workAuthorization
+      .split(",")
+      .map((a) => a.trim());
+  }
+
+  try {
+    await fetch("http://localhost:5000/api/logs", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dataToSend),
+    });
+
+    alert("Log saved!");
+
+    setFormData({});
+    fetchLogs();
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const handleCheckout = async (id) => {
     
@@ -97,8 +109,10 @@ function App() {
 
     <select value={logType} onChange={(e) => setLogType(e.target.value)}>
     <option value="Movement">Movement</option>
+    <option value="Vehicle">Vehicle</option>
     <option value="Device">Device</option>
     <option value="WorkAccess">Work Access</option>
+    <option value="CarParkBeat">Car Park Beat</option>
     </select>
 
   <hr />
@@ -115,63 +129,135 @@ function App() {
 <form onSubmit={handleSubmit}>
   {logType === "Movement" && (
     <>
-      <input name="name" placeholder="Name" value={formData.name} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="name" placeholder="Name" value={formData.name || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="phone" placeholder="Phone" value={formData.phone} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="phone" placeholder="Phone" value={formData.phone || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="companyName" placeholder="Company" value={formData.companyName} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="companyName" placeholder="Company" value={formData.companyName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="purpose" placeholder="Purpose" value={formData.purpose} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="purpose" placeholder="Purpose" value={formData.purpose || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+    </>
+  )}
+
+  {logType === "Vehicle" && (
+    <>
+      <input name="plateNumber" placeholder="Plate Number" value={formData.plateNumber || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="vehicleMake" placeholder="Vehicle Make" value={formData.vehicleMake || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="driverName" placeholder="Driver Name" value={formData.driverName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="driverPhone" placeholder="Driver Phone" value={formData.driverPhone || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="vehicleAuthorization" placeholder="Authorized By" value={formData.vehicleAuthorization || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="purpose" placeholder="Purpose" value={formData.purpose || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <select name="direction" value={formData.direction} style={{ marginBottom: "10px" }} onChange={handleChange}>
+        <option value="From" text="From">From</option>
+        <option value="To" text="To">To</option>
+      </select>
+
+      <input name="gatePassNumber" placeholder="Gate Pass Number" value={formData.gatePassNumber || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="cargoDescription" placeholder="Cargo Description" value={formData.cargoDescription || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="numberOfPassengers" type="number" placeholder="Number of Passengers" value={formData.numberOfPassengers || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <select name="timeInOut" value={formData.timeInOut} style={{ marginBottom: "10px" }} onChange={handleChange}>
+        <option value="In">Time In</option>
+        <option value="Out">Time Out</option>
+      </select>
+
+      <input name="apoOnDeskName" placeholder="APO On Desk Name" value={formData.apoOnDeskName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
     </>
   )}
 
   {logType === "Device" && (
     <>
-      <input name="name" placeholder="Name" value={formData.name} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="name" placeholder="Name" value={formData.name || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
       
-      <input name="companyName" placeholder="Company" value={formData.companyName} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="companyName" placeholder="Company" value={formData.companyName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="deviceDescription" placeholder="Device Description" style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="deviceDescription" placeholder="Device Description" value={formData.deviceDescription || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="serialNumber" placeholder="Serial Number" style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="serialNumber" placeholder="Serial Number" value={formData.serialNumber || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="qtyIn" type="number" placeholder="Quantity In" style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="qtyIn" type="number" placeholder="Quantity In" value={formData.qtyIn || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="qtyOut" type="number" placeholder="Quantity Out" style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="qtyOut" type="number" placeholder="Quantity Out" value={formData.qtyOut || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
     </> 
   )}
 
   {logType === "WorkAccess" && (
     <>
-      <input name="name" placeholder="Name" value={formData.name} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="name" placeholder="Name" value={formData.name || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="phone" placeholder="Phone" value={formData.phone} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="phone" placeholder="Phone" value={formData.phone || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
       
-      <input name="companyName" placeholder="Company" value={formData.companyName} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="companyName" placeholder="Company" value={formData.companyName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="contactPerson" placeholder="Contact Person" style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="contactPerson" placeholder="Contact Person" value={formData.contactPerson || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="workArea" placeholder="Work Area" style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="workArea" placeholder="Work Area" value={formData.workArea || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="typeOfWork" placeholder="Type of Work" style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="typeOfWork" placeholder="Type of Work" value={formData.typeOfWork || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
-      <input name="accessRefNumber" placeholder="Reference Number" style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <input name="accessRefNumber" placeholder="Reference Number" value={formData.accessRefNumber || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="workAuthorization" placeholder="Authorized By (comma seperated)" value={formData.workAuthorization || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+    </>
+  )}
+
+  {logType === "CarParkBeat" && (
+    <>
+      <input name="driverName" placeholder="Driver Name" value={formData.driverName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="driverPhone" placeholder="Driver Phone" value={formData.driverPhone || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="plateNumber" placeholder="Plate Number" value={formData.plateNumber || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="vehicleMake" placeholder="Vehicle Make" value={formData.vehicleMake || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="vehicleColor" placeholder="Vehicle Color" value={formData.vehicleColor || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
+      <br /><br />
+
+      <textarea name="remarks" placeholder="Remarks" value={formData.remarks || ""} style={{ marginBottom: "10px", height: "60px" }} onChange={handleChange} />
+      <br /><br />
+
+      <input name="apoOnDeskName" placeholder="APO On Desk Name" value={formData.apoOnDeskName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
     </>
   )}
@@ -187,9 +273,12 @@ function App() {
 
   <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("")}>All</button>
   <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=Movement")}>Movement</button>
+  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=Vehicle")}>Vehicle</button>
   <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=Device")}>Device</button>
   <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=WorkAccess")}>Work Access</button>
+  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=CarParkBeat")}>Car Park Beat</button>
   <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("status=Inside")}>Inside Only</button>
+  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("status=Out")}>Out Only</button>
 
       <hr />
 
