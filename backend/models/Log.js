@@ -1,54 +1,62 @@
- const mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-// Log Schema
 const logSchema = new mongoose.Schema(
   {
     type: {
       type: String,
       required: true,
-      enum: ["Movement", "Device", "WorkAccess"],
+      enum: ["Movement", "Vehicle", "Device", "WorkAccess", "CarParkBeat"],
     },
 
     sn: {
       type: Number,
+      default: () => Math.floor(Math.random() * 1000000), // Random 6-digit number
       required: true,
     },
 
-    // Movement / General
+    // ===== MOVEMENT (Visitors / Contractors) =====
     name: String,
     phone: String,
     companyName: String,
     purpose: String,
-    contactPerson: String,
 
-    // Device Log
-    dateIn: Date,
-    dateOut: Date,
-    qtyIn: Number,
+    // ===== VEHICLE =====
+    plateNumber: String,
+    vehicleMake: String,
+    driverName: String,
+    driverPhone: String,
+    vehicleAuthorization: [String], // multiple staff
+    gatePassNumber: String,
+    cargoDescription: String,
+    apoOnDeskName: String,
+    numberOfPassengers: Number,
+
+    // ===== DEVICE =====
     deviceDescription: String,
     serialNumber: String,
+    qtyIn: Number,
+    qtyOut: Number,
 
-    // Work Access
+    // ===== WORK ACCESS =====
     workArea: String,
     typeOfWork: String,
     accessRefNumber: String,
-    authorization: [String], // multiple authorizers
-    keyCollection: String,
+    workAuthorization: [String], // multiple staff
+    contactPerson: String,
     apoOnDeskName: String,
 
-    // Time tracking
+    // ===== CAR PARK BEAT =====
+    vehicleColor: String,
+    remarks: String,
+
+    // ===== TIME TRACKING =====
     timeIn: {
       type: Date,
       default: Date.now,
     },
     timeOut: Date,
 
-    signIn: String,
-    signOut: String,
-
-    remarks: String,
-
-    // Status control
+    // ===== STATUS =====
     status: {
       type: String,
       enum: ["Inside", "Out"],
@@ -56,7 +64,7 @@ const logSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // adds createdAt and updatedAt automatically
+    timestamps: true,
   }
 );
 
