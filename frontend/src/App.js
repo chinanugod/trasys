@@ -147,8 +147,8 @@ try {
     }
   };
 
-// Table configuration based on log type
-  const tableConfig = {
+// Table configuration based on log type. This determines which columns to show for each type. 
+  const tableConfig = { // this is refered to as tableConfig in the code, it is an object that defines the columns to display for each log type in the table. Each key in the object corresponds to a log type (e.g., "Movement", "Vehicle", etc.), and the value is an array of column definitions. Each column definition is an object with a "label" (the header text to display) and a "key" (the property name from the log data to display in that column). This configuration allows the table to dynamically show different columns based on the active log type filter.
   Movement: [
     { label: "S/N", key: "sn" },
     { label: "Name", key: "name" },
@@ -165,7 +165,13 @@ try {
     { label: "Driver", key: "driverName" },
     { label: "Phone", key: "driverPhone" },
     { label: "Make", key: "vehicleMake" },
+    { label: "Authorized By", key: "vehicleAuthorization" },
+    { label: "Direction", key: "direction" },
+    { label: "Gate Pass No", key: "gatePassNumber" },
+    { label: "Cargo Desc", key: "cargoDescription" },
     { label: "Passengers", key: "numberOfPassengers" },
+    { label: "Time In/Out", key: "timeInOut" },
+    { label: "APO On Desk", key: "apoOnDeskName" },
     { label: "Status", key: "status" },
     { label: "Time In", key: "timeIn" },
   ],
@@ -184,10 +190,13 @@ try {
   WorkAccess: [
     { label: "S/N", key: "sn" },
     { label: "Name", key: "name" },
+    { label: "Phone", key: "phone" },
     { label: "Company", key: "companyName" },
+    { label: "Contact Person", key: "contactPerson" },
     { label: "Work Area", key: "workArea" },
-    { label: "Type", key: "typeOfWork" },
+    { label: "Type of Work", key: "typeOfWork" },
     { label: "Ref No", key: "accessRefNumber" },
+    { label: "Authorized By", key: "workAuthorization" },
     { label: "Status", key: "status" },
   ],
 
@@ -198,6 +207,7 @@ try {
     { label: "Plate", key: "plateNumber" },
     { label: "Color", key: "vehicleColor" },
     { label: "Remarks", key: "remarks" },
+    { label: "APO On Desk", key: "apoOnDeskName" },
     { label: "Status", key: "status" },
   ],
 };
