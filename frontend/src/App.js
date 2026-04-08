@@ -8,10 +8,12 @@ function App() {
     purpose: "",
   });
 
+  const [editingLogId, setEditingLogId] = useState(null); // Track which log is being edited
+
   const [filter, setFilter] = useState(""); // e.g. "type=Movement" or "status=Inside"
-
-  const [logs, setLogs] = useState([]);
-
+  
+  const [logs, setLogs] = useState([]); // All logs fetched from backend
+  
   const [logType, setLogType] = useState("Movement"); // Default log type
 
   const activeType =
@@ -58,6 +60,16 @@ function App() {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
+  if (logType === "Movement" && !formData.name) {
+    alert("Name is required");
+    return;
+  }
+
+  if (logType === "Vehicle" && !formData.plateNumber) {
+    alert("Plate Number is required");
+    return;
+  }
+
   let dataToSend = {
     type: logType,
     ...formData,
@@ -76,22 +88,29 @@ const handleSubmit = async (e) => {
       .map((a) => a.trim());
   }
 
-  try {
-    await fetch("http://localhost:5000/api/logs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataToSend),
-    });
+try {
+  const url = editingLogId
+    ? `http://localhost:5000/api/logs/${editingLogId}`
+    : "http://localhost:5000/api/logs";
 
-    alert("Log saved!");
+  const method = editingLogId ? "PUT" : "POST";
 
-    setFormData({});
-    fetchLogs();
-  } catch (error) {
-    console.error(error);
-  }
+  await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dataToSend),
+  });
+
+  alert(editingLogId ? "Log updated!" : "Log saved!");
+
+  setFormData({});
+  setEditingLogId(null);
+  fetchLogs();
+} catch (error) {
+  console.error(error);
+}
 };
 
   const handleCheckout = async (id) => {
@@ -104,6 +123,27 @@ const handleSubmit = async (e) => {
       fetchLogs(); // refresh table
     } catch (error) {
       console.error("Checkout error:", error);
+    }
+  };
+
+  const handleEdit = (log) => {
+    setEditingLogId(log._id);
+    setFormData(log);
+    setLogType(log.type);
+  }
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this log?");
+    if (!confirmDelete) return;
+
+    try {
+      await fetch(`http://localhost:5000/api/logs/${id}`, {
+        method: "DELETE",
+      });
+
+      fetchLogs(); // refresh table
+    } catch (error) {
+      console.error("Delete error:", error);
     }
   };
 
@@ -162,6 +202,7 @@ const handleSubmit = async (e) => {
   ],
 };
 
+// Determine which columns to show based on active type filter
 const columnsToUse =
   activeType && tableConfig[activeType]
     ? tableConfig[activeType]
@@ -376,13 +417,19 @@ if (!Array.isArray(logs)) return null; // or show loading/error
         ))}
 
         <td>
-          {log.status === "Inside" ? (
+          {log.status === "Inside" && ( 
             <button onClick={() => handleCheckout(log._id)}>
-              Check-Out
+            Check Out
             </button>
-          ) : (
-            "Completed"
           )}
+     
+          <button onClick={() => handleEdit(log)}>
+            Edit
+          </button>
+
+          <button onClick={() => handleDelete(log._id)}>
+            Delete
+          </button>
         </td>
       </tr>
     );
@@ -394,6 +441,6 @@ if (!Array.isArray(logs)) return null; // or show loading/error
       </div>
     </div>
   );
-}
+};
 
 export default App;

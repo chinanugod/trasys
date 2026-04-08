@@ -76,4 +76,18 @@ router.patch("/:id/checkout", async (req, res) => { // what this line does is it
   }
 });
 
+// Update log (general)
+router.put("/:id", async (req, res) => {
+  const updated = await Log.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+  res.json(updated);
+});
+
+// Delete log
+router.delete("/:id", async (req, res) => {
+  await Log.findByIdAndDelete(req.params.id);
+  res.json({ message: "Deleted" });
+});
+
 module.exports = router; // this line exports the router object, which contains all the defined routes for handling log-related requests. By exporting the router, we can import it in other parts of our application (such as the main server file) and use it to handle requests to the specified endpoints.
