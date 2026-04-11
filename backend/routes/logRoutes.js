@@ -18,6 +18,7 @@ router.post("/", async (req, res) => {
     const newLog = new Log({
       ...req.body,
       sn: nextSN,
+      action: req.body.action || "IN", // default to IN if not provided
     });
 
     const savedLog = await newLog.save();
@@ -32,7 +33,7 @@ router.post("/", async (req, res) => {
 // Get all logs (with filtering)
 router.get("/", async (req, res) => {
   try {
-    const { type, status } = req.query;
+    const { type, action } = req.query;
 
     let filter = {};
 
@@ -40,11 +41,11 @@ router.get("/", async (req, res) => {
       filter.type = type;
     }
 
-    if (status) {
-      filter.status = status;
+    if (action) {
+      filter.action = action; // Filter by IN/OUT
     }
 
-    const logs = await Log.find(filter).sort({ timeIn: -1 });
+    const logs = await Log.find(filter).sort({ createdAt: -1 });
 
     res.json(logs);
   } catch (error) {
@@ -53,41 +54,28 @@ router.get("/", async (req, res) => {
   }
 });
 
-
-// Check-out log
-router.patch("/:id/checkout", async (req, res) => { // what this line does is it defines a PATCH route for the endpoint "/:id/checkout". The ":id" part is a route parameter that will capture the ID of the log entry we want to update. When a PATCH request is made to this endpoint, the server will execute the callback function to handle the request and update the log entry with the specified ID.
-  try {
-    const log = await Log.findById(req.params.id); // this is the log entry we want to update
-
-    if (!log) {
-      return res.status(404).json({ message: "Log not found" });
-    }
-
-    // Update fields
-    log.timeOut = new Date();
-    log.status = "Out";
-
-    const updatedLog = await log.save();
-
-    res.json(updatedLog);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Update log (general)
+// Update log (only certain fields)
 router.put("/:id", async (req, res) => {
-  const updated = await Log.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
+  const allowedFields = ["remarks"]; // example
+
+  const updates = {};
+  for (let key of allowedFields) {
+    if (req.body[key]) updates[key] = req.body[key];
+  }
+
+  const updated = await Log.findByIdAndUpdate(
+    req.params.id,
+    updates,
+    { new: true }
+  );
+
   res.json(updated);
 });
 
-// Delete log
-router.delete("/:id", async (req, res) => {
-  await Log.findByIdAndDelete(req.params.id);
-  res.json({ message: "Deleted" });
-});
+// // Delete log
+// router.delete("/:id", async (req, res) => {
+//   await Log.findByIdAndDelete(req.params.id);
+//   res.json({ message: "Deleted" });
+// });
 
 module.exports = router; // this line exports the router object, which contains all the defined routes for handling log-related requests. By exporting the router, we can import it in other parts of our application (such as the main server file) and use it to handle requests to the specified endpoints.

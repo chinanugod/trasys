@@ -26,7 +26,6 @@ const logSchema = new mongoose.Schema(
     driverName: String,
     driverPhone: String,
     vehicleAuthorization: [String], // multiple staff
-    gatePassNumber: String,
     cargoDescription: String,
     apoOnDeskName: String,
     numberOfPassengers: Number,
@@ -49,23 +48,23 @@ const logSchema = new mongoose.Schema(
     vehicleColor: String,
     remarks: String,
 
-    // ===== TIME TRACKING =====
-    timeIn: {
-      type: Date,
-      default: Date.now,
-    },
-    timeOut: Date,
-
-    // ===== STATUS =====
-    status: {
+    // ===== CHECK-IN / CHECK-OUT =====
+    action: {
       type: String,
-      enum: ["Inside", "Out"],
-      default: "Inside",
+      enum: ["IN", "OUT"],
+      required: true,
+    },
+
+    // ===== DIRECTION =====
+    direction: {
+      type: String,
+      enum: ["From", "To"],
     },
   },
-  {
-    timestamps: true,
-  }
+
+  // ==== TIMESTAMPS ===
+  { timestamps: true }
 );
+
 
 module.exports = mongoose.model("Log", logSchema);

@@ -113,18 +113,27 @@ try {
 }
 };
 
-  const handleCheckout = async (id) => {
-    
-    try {
-      await fetch(`http://localhost:5000/api/logs/${id}/checkout`, {
-        method: "PATCH",
-      });
+  const handleCheck = async (log, actionType) => {
+  try {
+    const newLog = {
+      ...log,
+      _id: undefined, // remove old id
+      action: actionType, // "IN" or "OUT"
+    };
 
-      fetchLogs(); // refresh table
-    } catch (error) {
-      console.error("Checkout error:", error);
-    }
-  };
+    await fetch("http://localhost:5000/api/logs?action=IN", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newLog),
+    });
+
+    fetchLogs();
+  } catch (error) {
+    console.error("Check error:", error);
+  }
+};
 
   const handleEdit = (log) => {
     setEditingLogId(log._id);
@@ -132,20 +141,20 @@ try {
     setLogType(log.type);
   }
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this log?");
-    if (!confirmDelete) return;
+  // const handleDelete = async (id) => {
+  //   const confirmDelete = window.confirm("Are you sure you want to delete this log?");
+  //   if (!confirmDelete) return;
 
-    try {
-      await fetch(`http://localhost:5000/api/logs/${id}`, {
-        method: "DELETE",
-      });
+  //   try {
+  //     await fetch(`http://localhost:5000/api/logs/${id}`, {
+  //       method: "DELETE",
+  //     });
 
-      fetchLogs(); // refresh table
-    } catch (error) {
-      console.error("Delete error:", error);
-    }
-  };
+  //     fetchLogs(); // refresh table
+  //   } catch (error) {
+  //     console.error("Delete error:", error);
+  //   }
+  // };
 
 // Table configuration based on log type. This determines which columns to show for each type. 
   const tableConfig = { // this is refered to as tableConfig in the code, it is an object that defines the columns to display for each log type in the table. Each key in the object corresponds to a log type (e.g., "Movement", "Vehicle", etc.), and the value is an array of column definitions. Each column definition is an object with a "label" (the header text to display) and a "key" (the property name from the log data to display in that column). This configuration allows the table to dynamically show different columns based on the active log type filter.
@@ -155,8 +164,8 @@ try {
     { label: "Phone", key: "phone" },
     { label: "Company", key: "companyName" },
     { label: "Purpose", key: "purpose" },
-    { label: "Status", key: "status" },
-    { label: "Time In", key: "timeIn" },
+    { label: "Action", key: "action" },
+    { label: "Time", key: "createdAt" },
   ],
 
   Vehicle: [
@@ -167,13 +176,10 @@ try {
     { label: "Make", key: "vehicleMake" },
     { label: "Authorized By", key: "vehicleAuthorization" },
     { label: "Direction", key: "direction" },
-    { label: "Gate Pass No", key: "gatePassNumber" },
     { label: "Cargo Desc", key: "cargoDescription" },
     { label: "Passengers", key: "numberOfPassengers" },
-    { label: "Time In/Out", key: "timeInOut" },
-    { label: "APO On Desk", key: "apoOnDeskName" },
-    { label: "Status", key: "status" },
-    { label: "Time In", key: "timeIn" },
+    { label: "Action", key: "action" },
+    { label: "Time", key: "createdAt" },
   ],
 
   Device: [
@@ -184,7 +190,8 @@ try {
     { label: "Serial", key: "serialNumber" },
     { label: "Qty In", key: "qtyIn" },
     { label: "Qty Out", key: "qtyOut" },
-    { label: "Status", key: "status" },
+    { label: "Action", key: "action" },
+    { label: "Time", key: "createdAt" },
   ],
 
   WorkAccess: [
@@ -197,7 +204,8 @@ try {
     { label: "Type of Work", key: "typeOfWork" },
     { label: "Ref No", key: "accessRefNumber" },
     { label: "Authorized By", key: "workAuthorization" },
-    { label: "Status", key: "status" },
+    { label: "Action", key: "action" },
+    { label: "Time", key: "createdAt" },
   ],
 
   CarParkBeat: [
@@ -207,8 +215,8 @@ try {
     { label: "Plate", key: "plateNumber" },
     { label: "Color", key: "vehicleColor" },
     { label: "Remarks", key: "remarks" },
-    { label: "APO On Desk", key: "apoOnDeskName" },
-    { label: "Status", key: "status" },
+    { label: "Action", key: "action" },
+    { label: "Time", key: "createdAt" },
   ],
 };
 
@@ -283,25 +291,33 @@ if (!Array.isArray(logs)) return null; // or show loading/error
       <br /><br />
 
       <select name="direction" value={formData.direction} style={{ marginBottom: "10px" }} onChange={handleChange}>
-        <option value="From" text="From">From</option>
-        <option value="To" text="To">To</option>
+        <option value="">Select Direction</option>
+        <option value="From">From</option>
+        <option value="To">To</option>       
       </select>
 
-      <input name="gatePassNumber" placeholder="Gate Pass Number" value={formData.gatePassNumber || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
-
+      {formData.direction && (
+  <>
+    <br />
+    <input
+      name="purpose"
+      placeholder={
+        formData.direction === "From"
+          ? "Coming from where?"
+          : "Going to where?"
+      }
+      value={formData.purpose || ""}
+      onChange={handleChange}
+      style={{ marginBottom: "10px" }}
+    />
+    <br /><br />
+  </>
+)}
+ 
       <input name="cargoDescription" placeholder="Cargo Description" value={formData.cargoDescription || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
 
       <input name="numberOfPassengers" type="number" placeholder="Number of Passengers" value={formData.numberOfPassengers || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
-
-      <select name="timeInOut" value={formData.timeInOut} style={{ marginBottom: "10px" }} onChange={handleChange}>
-        <option value="In">Time In</option>
-        <option value="Out">Time Out</option>
-      </select>
-
-      <input name="apoOnDeskName" placeholder="APO On Desk Name" value={formData.apoOnDeskName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
       <br /><br />
     </>
   )}
@@ -375,9 +391,6 @@ if (!Array.isArray(logs)) return null; // or show loading/error
 
       <textarea name="remarks" placeholder="Remarks" value={formData.remarks || ""} style={{ marginBottom: "10px", height: "60px" }} onChange={handleChange} />
       <br /><br />
-
-      <input name="apoOnDeskName" placeholder="APO On Desk Name" value={formData.apoOnDeskName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
     </>
   )}
 
@@ -396,8 +409,8 @@ if (!Array.isArray(logs)) return null; // or show loading/error
   <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=Device")}>Device</button>
   <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=WorkAccess")}>Work Access</button>
   <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=CarParkBeat")}>Car Park Beat</button>
-  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("status=Inside")}>Inside Only</button>
-  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("status=Out")}>Out Only</button>
+  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("action=IN")}>IN Only</button>
+  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("action=OUT")}>OUT Only</button>
 
       <hr />
 
@@ -408,38 +421,51 @@ if (!Array.isArray(logs)) return null; // or show loading/error
                 {columnsToUse.map((col) => (
                 <th key={col.key}>{col.label}</th>
                   ))}
-                <th>Action</th>
+                <th>Controls</th>
               </tr>
           </thead>
 
   <tbody> 
     {logs.map((log) => {
         const columns = columnsToUse;
-    
+  
     return (
-      <tr key={log._id}>
+      <tr key={log._id}
+      style={{
+        backgroundColor:
+          log.action === "OUT" ? "#ffe5e5" : "#e5ffe5",
+      }}
+      >
         {columns.map((col) => (
           <td key={col.key}>
-            {col.key === "timeIn"
-              ? new Date(log[col.key]).toLocaleString()
+            {col.key === "createdAt"
+              ? new Date(log.createdAt).toLocaleString()
+              : col.key === "action"
+              ? (log.action === "OUT"
+               ? "🔴 OUT"
+                : "🟢 IN")                
+              : Array.isArray(log[col.key])
+              ? log[col.key].join(", ")
               : log[col.key]}
           </td>
         ))}
 
         <td>
-          {log.status === "Inside" && ( 
-            <button onClick={() => handleCheckout(log._id)}>
-            Check Out
-            </button>
-          )}
-     
+          <button onClick={() => handleCheck(log, "IN")}>
+            Check-In
+          </button>
+
+          <button onClick={() => handleCheck(log, "OUT")}>
+            Check-Out
+          </button>
+
           <button onClick={() => handleEdit(log)}>
             Edit
           </button>
 
-          <button onClick={() => handleDelete(log._id)}>
+          {/* <button onClick={() => handleDelete(log._id)}>
             Delete
-          </button>
+          </button> */}
         </td>
       </tr>
     );
