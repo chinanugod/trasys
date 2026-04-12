@@ -460,13 +460,17 @@ if (!Array.isArray(logs)) return null; // or show loading/error
         ))}
 
         <td>
+          {log.action === "OUT" && (
           <button onClick={() => handleCheck(log, "IN")}>
             Check-In
           </button>
-
+          )}
+          
+          {log.action === "IN" && (
           <button onClick={() => handleCheck(log, "OUT")}>
             Check-Out
           </button>
+          )}
 
           <button onClick={() => handleEdit(log)}>
             Edit
