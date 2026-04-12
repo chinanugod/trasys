@@ -15,10 +15,14 @@ router.post("/", async (req, res) => {
     const nextSN = lastLog ? lastLog.sn + 1 : 1;
 
     // Create new log with auto SN
+    if (!req.body.action) {
+      return res.status(400).json({ message: "Action (IN/OUT) is required" });
+    }
+
     const newLog = new Log({
       ...req.body,
       sn: nextSN,
-      action: req.body.action || "IN", // default to IN if not provided
+      action: req.body.action, // default to empty string if not provided
     });
 
     const savedLog = await newLog.save();
