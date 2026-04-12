@@ -115,10 +115,19 @@ try {
 
   const handleCheck = async (log, actionType) => {
   try {
+    // const newLog = {
+    //   ...log,
+    //   _id: undefined, // remove old id
+    //   createdAt: undefined, // let backend set new timestamp
+    //   updatedAt: undefined, // let backend set new timestamp
+    //   action: actionType, // "IN" or "OUT"
+    // };
+
+    // Deconstruct log to exclude _id, createdAt, updatedAt, __v before sending to backend
+    const { _id, createdAt, updatedAt, __v, ...rest } = log; // exclude _id, createdAt, updatedAt, __v
     const newLog = {
-      ...log,
-      _id: undefined, // remove old id
-      action: actionType, // "IN" or "OUT"
+      ...rest,
+      action: actionType,
     };
 
     await fetch("http://localhost:5000/api/logs?action=IN", {
