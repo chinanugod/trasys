@@ -76,17 +76,28 @@ const handleSubmit = async (e) => {
   };
 
   // 🔥 Convert comma-separated to array
-  if (dataToSend.vehicleAuthorization) {
-    dataToSend.vehicleAuthorization = dataToSend.vehicleAuthorization
-      .split(",")
-      .map((a) => a.trim());
-  }
+  if (typeof dataToSend.vehicleAuthorization === "string") {
+  dataToSend.vehicleAuthorization = dataToSend.vehicleAuthorization
+    .split(",")
+    .map((a) => a.trim());
+}
 
-  if (dataToSend.workAuthorization) {
-    dataToSend.workAuthorization = dataToSend.workAuthorization
-      .split(",")
-      .map((a) => a.trim());
-  }
+  if (typeof dataToSend.workAuthorization === "string") {
+  dataToSend.workAuthorization = dataToSend.workAuthorization
+    .split(",")
+    .map((a) => a.trim());
+}
+// EVEN CLEANER WAY TO HANDLE COMMA SEPARATED FIELDS
+// const normalizeToArray = (value) => {
+//   if (Array.isArray(value)) return value;
+//   if (typeof value === "string") {
+//     return value.split(",").map((v) => v.trim());
+//   }
+//   return [];
+// };
+
+// dataToSend.vehicleAuthorization = normalizeToArray(dataToSend.vehicleAuthorization);
+// dataToSend.workAuthorization = normalizeToArray(dataToSend.workAuthorization);
 
 try {
   const url = editingLogId
