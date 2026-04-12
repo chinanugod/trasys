@@ -300,13 +300,13 @@ if (!Array.isArray(logs)) return null; // or show loading/error
   <>
     <br />
     <input
-      name="purpose"
+      name="directionDetail"
       placeholder={
         formData.direction === "From"
           ? "Coming from where?"
           : "Going to where?"
       }
-      value={formData.purpose || ""}
+      value={formData.directionDetail || ""}
       onChange={handleChange}
       style={{ marginBottom: "10px" }}
     />

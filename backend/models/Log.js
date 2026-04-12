@@ -26,8 +26,8 @@ const logSchema = new mongoose.Schema(
     driverName: String,
     driverPhone: String,
     vehicleAuthorization: [String], // multiple staff
+    directionDetail: String,
     cargoDescription: String,
-    apoOnDeskName: String,
     numberOfPassengers: Number,
 
     // ===== DEVICE =====
