@@ -2,27 +2,18 @@ const express = require("express");
 const router = express.Router();
 const Log = require("../models/Log");
 
-
-// Create a new log (with auto S/N)
+// Create new log entry
 router.post("/", async (req, res) => {
-  console.log("POST request received");
-
   try {
-    // Find last log by S/N
+    // Get last S/N
     const lastLog = await Log.findOne().sort({ sn: -1 });
-
-    // Generate next S/N
     const nextSN = lastLog ? lastLog.sn + 1 : 1;
 
-    // Create new log with auto SN
-    if (!req.body.action) {
-      return res.status(400).json({ message: "Action (IN/OUT) is required" });
-    }
-
+    // Create new log
     const newLog = new Log({
       ...req.body,
       sn: nextSN,
-      action: req.body.action, // default to empty string if not provided
+      action: req.body.action || "IN", // fallback safety
     });
 
     const savedLog = await newLog.save();
@@ -39,18 +30,18 @@ router.get("/", async (req, res) => {
   try {
     const { type, action } = req.query;
 
-    let filter = {};
+    let filter = {}; // Start with an empty filter
 
     if (type) {
-      filter.type = type;
+      filter.type = type; // Filter by log type (Movement, Vehicle, etc.)
     }
 
     if (action) {
       filter.action = action; // Filter by IN/OUT
     }
 
-    const logs = await Log.find(filter).sort({ createdAt: -1 });
-
+    const logs = await Log.find(filter).sort({ createdAt: -1 }); // Sort by newest first
+// Return filtered logs
     res.json(logs);
   } catch (error) {
     console.error(error);

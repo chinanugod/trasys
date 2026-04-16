@@ -8,13 +8,15 @@ function App() {
     purpose: "",
   });
 
-  const [editingLogId, setEditingLogId] = useState(null); // Track which log is being edited
+   
 
   const [filter, setFilter] = useState(""); // e.g. "type=Movement" or "status=Inside"
   
   const [logs, setLogs] = useState([]); // All logs fetched from backend
   
   const [logType, setLogType] = useState("Movement"); // Default log type
+
+  const [pendingAction, setPendingAction] = useState(null); // Track if we're trying to check IN or OUT
 
   const activeType =
   typeof filter === "string" && filter.includes("type=")
@@ -60,6 +62,8 @@ function App() {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
+  console.log("Submitting with action:", pendingAction);
+
   if (logType === "Movement" && !formData.name) {
     alert("Name is required");
     return;
@@ -73,93 +77,64 @@ const handleSubmit = async (e) => {
   let dataToSend = {
     type: logType,
     ...formData,
+    action: pendingAction || "IN", // 🔥 KEY LINE
   };
 
-  // 🔥 Convert comma-separated to array
+  // Normalize arrays safely
   if (typeof dataToSend.vehicleAuthorization === "string") {
-  dataToSend.vehicleAuthorization = dataToSend.vehicleAuthorization
-    .split(",")
-    .map((a) => a.trim());
-}
+    dataToSend.vehicleAuthorization =
+      dataToSend.vehicleAuthorization.split(",").map((a) => a.trim());
+  }
 
   if (typeof dataToSend.workAuthorization === "string") {
-  dataToSend.workAuthorization = dataToSend.workAuthorization
-    .split(",")
-    .map((a) => a.trim());
-}
-// EVEN CLEANER WAY TO HANDLE COMMA SEPARATED FIELDS
-// const normalizeToArray = (value) => {
-//   if (Array.isArray(value)) return value;
-//   if (typeof value === "string") {
-//     return value.split(",").map((v) => v.trim());
-//   }
-//   return [];
-// };
+    dataToSend.workAuthorization =
+      dataToSend.workAuthorization.split(",").map((a) => a.trim());
+  }
 
-// dataToSend.vehicleAuthorization = normalizeToArray(dataToSend.vehicleAuthorization);
-// dataToSend.workAuthorization = normalizeToArray(dataToSend.workAuthorization);
-
-try {
-  const url = editingLogId
-    ? `http://localhost:5000/api/logs/${editingLogId}`
-    : "http://localhost:5000/api/logs";
-
-  const method = editingLogId ? "PUT" : "POST";
-
-  await fetch(url, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(dataToSend),
-  });
-
-  alert(editingLogId ? "Log updated!" : "Log saved!");
-
-  setFormData({});
-  setEditingLogId(null);
-  fetchLogs();
-} catch (error) {
-  console.error(error);
-}
-};
-
-  const handleCheck = async (log, actionType) => {
   try {
-    // const newLog = {
-    //   ...log,
-    //   _id: undefined, // remove old id
-    //   createdAt: undefined, // let backend set new timestamp
-    //   updatedAt: undefined, // let backend set new timestamp
-    //   action: actionType, // "IN" or "OUT"
-    // };
+    const url = "http://localhost:5000/api/logs";
 
-    // Deconstruct log to exclude _id, createdAt, updatedAt, __v before sending to backend
-    const { _id, createdAt, updatedAt, __v, ...rest } = log; // exclude _id, createdAt, updatedAt, __v
-    const newLog = {
-      ...rest,
-      action: actionType,
-    };
+    const method = "POST";
 
-    await fetch("http://localhost:5000/api/logs?action=IN", {
-      method: "POST",
+    await fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(newLog),
+      body: JSON.stringify(dataToSend),
     });
+
+    alert("Log saved!");
+
+    // Reset everything
+    setFormData({});
+    setPendingAction(null);
 
     fetchLogs();
   } catch (error) {
-    console.error("Check error:", error);
+    console.error(error);
   }
 };
 
-  const handleEdit = (log) => {
-    setEditingLogId(log._id);
-    setFormData(log);
-    setLogType(log.type);
-  }
+ const handleCheck = (log, actionType) => {
+  // Remove system fields
+  const { _id, createdAt, updatedAt, __v, ...rest } = log;
+
+  // Fill form with existing data
+  setFormData(rest);
+
+  // Ensure correct form type
+  setLogType(log.type);
+
+  // Store intended action (IN or OUT)
+  setPendingAction(actionType);
+};
+
+  // const handleEdit = (log) => {
+    
+  //   setFormData(log);
+  //   setLogType(log.type);
+  // }
 
   // const handleDelete = async (id) => {
   //   const confirmDelete = window.confirm("Are you sure you want to delete this log?");
@@ -483,9 +458,9 @@ if (!Array.isArray(logs)) return null; // or show loading/error
           </button>
           )}
 
-          <button onClick={() => handleEdit(log)}>
+          {/* <button onClick={() => handleEdit(log)}>
             Edit
-          </button>
+          </button> */}
 
           {/* <button onClick={() => handleDelete(log._id)}>
             Delete
