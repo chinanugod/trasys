@@ -161,6 +161,7 @@ const handleSubmit = async (e) => {
     { label: "Purpose", key: "purpose" },
     { label: "Action", key: "action" },
     { label: "Time", key: "createdAt" },
+    { label: "Duration", key: "duration" }
   ],
 
   Vehicle: [
@@ -175,6 +176,7 @@ const handleSubmit = async (e) => {
     { label: "Passengers", key: "numberOfPassengers" },
     { label: "Action", key: "action" },
     { label: "Time", key: "createdAt" },
+    { label: "Duration", key: "duration" }
   ],
 
   Device: [
@@ -187,6 +189,7 @@ const handleSubmit = async (e) => {
     { label: "Qty Out", key: "qtyOut" },
     { label: "Action", key: "action" },
     { label: "Time", key: "createdAt" },
+    { label: "Duration", key: "duration" }
   ],
 
   WorkAccess: [
@@ -201,6 +204,7 @@ const handleSubmit = async (e) => {
     { label: "Authorized By", key: "workAuthorization" },
     { label: "Action", key: "action" },
     { label: "Time", key: "createdAt" },
+    { label: "Duration", key: "duration" }
   ],
 
   CarParkBeat: [
@@ -212,6 +216,7 @@ const handleSubmit = async (e) => {
     { label: "Remarks", key: "remarks" },
     { label: "Action", key: "action" },
     { label: "Time", key: "createdAt" },
+    { label: "Duration", key: "duration" }
   ],
 };
 
@@ -222,6 +227,32 @@ const columnsToUse =
     : tableConfig["Movement"]; // default to Movement columns if type filter is not active
  
 if (!Array.isArray(logs)) return null; // or show loading/error
+
+
+const getRelatedInLog = (log) => {
+  return logs
+    .filter(
+      (l) =>
+        l.action === "IN" &&
+        l.name === log.name &&
+        l.phone === log.phone &&
+        new Date(l.createdAt) < new Date(log.createdAt)
+    )
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+};
+
+const calculateDuration = (inTime, outTime) => {
+  const start = new Date(inTime);
+  const end = new Date(outTime);
+
+  const diffMs = end - start;
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+
+  const hours = Math.floor(diffMins / 60);
+  const minutes = diffMins % 60;
+
+  return `${hours}h ${minutes}m`;
+};
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
@@ -438,7 +469,19 @@ if (!Array.isArray(logs)) return null; // or show loading/error
               : col.key === "action"
               ? (log.action === "OUT"
                ? "🔴 OUT"
-                : "🟢 IN")                
+                : "🟢 IN")
+                
+                
+            : col.key === "duration"
+          ? (() => {
+            const inLog = getRelatedInLog(log);
+
+            if (!inLog || log.action !== "OUT") return "-";
+
+            return calculateDuration(inLog.createdAt, log.createdAt);
+          })()
+          
+
               : Array.isArray(log[col.key])
               ? log[col.key].join(", ")
               : log[col.key]}
