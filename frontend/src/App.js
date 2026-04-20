@@ -7,8 +7,7 @@ function App() {
     companyName: "",
     purpose: "",
   });
-
-   
+  
 
   const [filter, setFilter] = useState(""); // e.g. "type=Movement" or "status=Inside"
   
@@ -91,29 +90,30 @@ const handleSubmit = async (e) => {
       dataToSend.workAuthorization.split(",").map((a) => a.trim());
   }
 
-  try {
-    const url = "http://localhost:5000/api/logs";
+try {
+  const res = await fetch("http://localhost:5000/api/logs", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dataToSend),
+  });
 
-    const method = "POST";
-
-    await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataToSend),
-    });
-
-    alert("Log saved!");
-
-    // Reset everything
-    setFormData({});
-    setPendingAction(null);
-
-    fetchLogs();
-  } catch (error) {
-    console.error(error);
+  if (!res.ok) {
+    const err = await res.json();
+    alert(err.message); // show error from backend (e.g. duplicate IN)
+    return;
   }
+
+  alert("Log saved!");
+
+  setFormData({});
+  setPendingAction(null);
+
+  fetchLogs();
+} catch (error) {
+  console.error(error);
+}
 };
 
  const handleCheck = (log, actionType) => {
@@ -505,9 +505,9 @@ const calculateDuration = (inTime, outTime) => {
             Edit
           </button> */}
 
-          {/* <button onClick={() => handleDelete(log._id)}>
+          {/* {<button onClick={() => handleDelete(log._id)}>
             Delete
-          </button> */}
+          </button>} */}
         </td>
       </tr>
     );
