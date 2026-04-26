@@ -129,27 +129,27 @@ try {
   // Store intended action (IN or OUT)
   setPendingAction(actionType);
 };
+ 
+  const handleClearAll = async () => {
+  const confirmClear = window.confirm("Clear ALL logs?");
+  if (!confirmClear) return;
 
-  // const handleEdit = (log) => {
-    
-  //   setFormData(log);
-  //   setLogType(log.type);
-  // }
+  try {
+    const res = await fetch("http://localhost:5000/api/logs", {
+      method: "DELETE",
+      
+    });
 
-  // const handleDelete = async (id) => {
-  //   const confirmDelete = window.confirm("Are you sure you want to delete this log?");
-  //   if (!confirmDelete) return;
+    const data = await res.json();
+    console.log("DELETE response:", data);
 
-  //   try {
-  //     await fetch(`http://localhost:5000/api/logs/${id}`, {
-  //       method: "DELETE",
-  //     });
+    // 🔥 WAIT before refetch
+    await fetchLogs(filter);
 
-  //     fetchLogs(); // refresh table
-  //   } catch (error) {
-  //     console.error("Delete error:", error);
-  //   }
-  // };
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 // Table configuration based on log type. This determines which columns to show for each type. 
   const tableConfig = { // this is refered to as tableConfig in the code, it is an object that defines the columns to display for each log type in the table. Each key in the object corresponds to a log type (e.g., "Movement", "Vehicle", etc.), and the value is an array of column definitions. Each column definition is an object with a "label" (the header text to display) and a "key" (the property name from the log data to display in that column). This configuration allows the table to dynamically show different columns based on the active log type filter.
@@ -441,6 +441,7 @@ const calculateDuration = (inTime, outTime) => {
       <hr />
 
       <h2>Logs</h2>
+        <button style={{ marginBottom: "10px"}} onClick={handleClearAll}>Clear All Logs</button>
       <table border="1" cellPadding="10">
           <thead>
               <tr>
@@ -504,10 +505,6 @@ const calculateDuration = (inTime, outTime) => {
           {/* <button onClick={() => handleEdit(log)}>
             Edit
           </button> */}
-
-          {/* {<button onClick={() => handleDelete(log._id)}>
-            Delete
-          </button>} */}
         </td>
       </tr>
     );

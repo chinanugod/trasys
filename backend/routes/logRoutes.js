@@ -2,18 +2,47 @@ const express = require("express");
 const router = express.Router();
 const Log = require("../models/Log");
 
-// Create new log entry
 router.post("/", async (req, res) => {
   try {
-    // Get last S/N
-    const lastLog = await Log.findOne().sort({ sn: -1 });
-    const nextSN = lastLog ? lastLog.sn + 1 : 1;
+    const action = req.body.action || "IN";
 
-    // Create new log
+    const name = req.body.name?.trim();
+    const phone = req.body.phone?.toString().trim();
+
+    // ✅ Get LAST log for THIS USER
+    const lastUserLog = await Log.findOne({
+      name,
+      phone,
+    }).sort({ createdAt: -1 });
+
+    console.log("LAST USER LOG:", lastUserLog);
+
+    // 🚫 Prevent duplicate IN
+    if (action === "IN") {
+      if (lastUserLog && lastUserLog.action === "IN") {
+        return res.status(400).json({
+          message: "User already checked IN. Must check OUT first.",
+        });
+      }
+    }
+
+    // 🚫 Prevent duplicate OUT
+    if (action === "OUT") {
+      if (!lastUserLog || lastUserLog.action === "OUT") {
+        return res.status(400).json({
+          message: "User is not currently IN.",
+        });
+      }
+    }
+
+    // ✅ Get S/N separately
+    const lastSNLog = await Log.findOne().sort({ sn: -1 });
+    const nextSN = lastSNLog ? lastSNLog.sn + 1 : 1;
+
     const newLog = new Log({
       ...req.body,
       sn: nextSN,
-      action: req.body.action || "IN", // fallback safety
+      action,
     });
 
     const savedLog = await newLog.save();
@@ -67,10 +96,17 @@ router.put("/:id", async (req, res) => {
   res.json(updated);
 });
 
-// // Delete log
-// router.delete("/:id", async (req, res) => {
-//   await Log.findByIdAndDelete(req.params.id);
-//   res.json({ message: "Deleted" });
-// });
+router.delete("/", async (req, res) => {
+  console.log("DELETE HIT");
+  
+   try {
+    const result = await Log.deleteMany({});
+    console.log("Deleted:", result);
+
+    res.json({ message: "All logs cleared" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 module.exports = router; // this line exports the router object, which contains all the defined routes for handling log-related requests. By exporting the router, we can import it in other parts of our application (such as the main server file) and use it to handle requests to the specified endpoints.
