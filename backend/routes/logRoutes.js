@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Log = require("../models/Log");
+const authMiddleware = require("../middleware/authMiddleware");
+const roleMiddleware = require("../middleware/roleMiddleware");
 
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   try {
     const action = req.body.action || "IN";
 
@@ -55,7 +57,7 @@ router.post("/", async (req, res) => {
 });
 
 // Get all logs (with filtering)
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
     const { type, action } = req.query;
 
@@ -79,7 +81,7 @@ router.get("/", async (req, res) => {
 });
 
 // Update log (only certain fields)
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   const allowedFields = ["remarks"]; // example
 
   const updates = {};
@@ -92,18 +94,22 @@ router.put("/:id", async (req, res) => {
     updates,
     { new: true }
   );
-
+ 
   res.json(updated);
 });
 
-router.delete("/", async (req, res) => {
-  console.log("DELETE HIT");
-  
-   try {
-    const result = await Log.deleteMany({});
-    console.log("Deleted:", result);
+router.delete("/", authMiddleware,
+  roleMiddleware("Admin"), // Only Admin can clear all logs
+  async (req, res) => {
+  try {
+    // 🔒 Role check
+    if (req.user.role !== "Admin") {
+      return res.status(403).json({ message: "Only Admin can delete logs" });
+    }
 
+    await Log.deleteMany({});
     res.json({ message: "All logs cleared" });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

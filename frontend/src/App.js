@@ -7,7 +7,10 @@ function App() {
     companyName: "",
     purpose: "",
   });
-  
+
+  const [token, setToken] = useState(""); // Store token for authentication
+
+  const [userRole, setUserRole] = useState("Viewer"); // Default role is Viewer
 
   const [filter, setFilter] = useState(""); // e.g. "type=Movement" or "status=Inside"
   
@@ -16,6 +19,28 @@ function App() {
   const [logType, setLogType] = useState("Movement"); // Default log type
 
   const [pendingAction, setPendingAction] = useState(null); // Track if we're trying to check IN or OUT
+
+
+  // Handle login to get token (for simplicity, using hardcoded credentials here)
+  const handleLogin = async () => {
+  const res = await fetch("http://localhost:5000/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: "admin",
+      password: "1234",
+    }),
+  });
+
+  const data = await res.json();
+  localStorage.setItem("token", data.token); // Store token in localStorage
+  setToken(data.token);
+
+  console.log("Logged in:", data);
+};
+
 
   const activeType =
   typeof filter === "string" && filter.includes("type=")
@@ -31,13 +56,27 @@ function App() {
         url += `?${filterValue}`;
       }
 
-      const response = await fetch(url);
+      const token = localStorage.getItem("token"); // Get token from localStorage
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include token in Authorization header
+        },
+      }); 
       const data = await response.json();
       setLogs(data);
     } catch (error) {
       console.error("Error fetching logs:", error);
     }
   };
+
+  // On initial load, check for token and fetch logs
+  useEffect(() => {
+  const savedToken = localStorage.getItem("token");
+  if (savedToken) {
+    setToken(savedToken);
+  }
+}, []);
 
   // Fetch logs on page load and when filter changes
   useEffect(() => {
@@ -94,7 +133,8 @@ try {
   const res = await fetch("http://localhost:5000/api/logs", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json", 
+      "Authorization": `Bearer ${token}`, // Include token in Authorization header
     },
     body: JSON.stringify(dataToSend),
   });
@@ -135,10 +175,14 @@ try {
   if (!confirmClear) return;
 
   try {
-    const res = await fetch("http://localhost:5000/api/logs", {
-      method: "DELETE",
-      
-    });
+    const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:5000/api/logs", {
+  method: "DELETE",
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
 
     const data = await res.json();
     console.log("DELETE response:", data);
@@ -257,6 +301,22 @@ const calculateDuration = (inTime, outTime) => {
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
       <h1>Trasys Dashboard</h1>
+
+      <h4>Current Role: {userRole}</h4>
+
+<select value={userRole} onChange={(e) => setUserRole(e.target.value)}>
+  <option value="Admin">Admin</option>
+  <option value="Manager">Manager</option>
+  <option value="Supervisor">Supervisor</option>
+  <option value="APO">APO</option>
+  <option value="Viewer">Viewer</option>
+</select>
+
+ <button onClick={handleLogin} style={{ marginLeft: "10px" }}>
+  Login as Admin
+</button>
+
+<hr />
 
       <h4>Select Log Type</h4>
 
@@ -441,7 +501,14 @@ const calculateDuration = (inTime, outTime) => {
       <hr />
 
       <h2>Logs</h2>
-        <button style={{ marginBottom: "10px"}} onClick={handleClearAll}>Clear All Logs</button>
+
+      {userRole === "Admin" && (
+        <button style={{ marginBottom: "10px"}} 
+        onClick={handleClearAll}>Clear All Logs
+        </button>
+      )}
+        
+      
       <table border="1" cellPadding="10">
           <thead>
               <tr>
@@ -490,13 +557,13 @@ const calculateDuration = (inTime, outTime) => {
         ))}
 
         <td>
-          {log.action === "OUT" && (
+          {log.action === "OUT" && userRole !== "Viewer" && (
           <button onClick={() => handleCheck(log, "IN")}>
             Check-In
           </button>
           )}
           
-          {log.action === "IN" && (
+          {log.action === "IN" && userRole !== "Viewer" && (
           <button onClick={() => handleCheck(log, "OUT")}>
             Check-Out
           </button>
