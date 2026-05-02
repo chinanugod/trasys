@@ -58,8 +58,14 @@ function App() {
 
       const token = localStorage.getItem("token"); // Get token from localStorage
 
+       if (!token) {
+      console.error("No token found, skipping fetch.");
+      return;
+    }
+
       const response = await fetch(url, {
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Include token in Authorization header
         },
       }); 
@@ -79,9 +85,12 @@ function App() {
 }, []);
 
   // Fetch logs on page load and when filter changes
-  useEffect(() => {
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (token) {
     fetchLogs(filter);
-  }, [filter]);
+  }
+}, [filter]);
 
   // Run once when page loads
   useEffect(() => {
@@ -270,7 +279,9 @@ const columnsToUse =
     ? tableConfig[activeType]
     : tableConfig["Movement"]; // default to Movement columns if type filter is not active
  
-if (!Array.isArray(logs)) return null; // or show loading/error
+if (!Array.isArray(logs)) {
+  return <div>Loading logs...</div>;
+} // or show loading/error
 
 
 const getRelatedInLog = (log) => {
