@@ -20,28 +20,43 @@ function App() {
 
   const [pendingAction, setPendingAction] = useState(null); // Track if we're trying to check IN or OUT
 
+// Handle login and get token from backend
+const handleLogin = async () => {
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: "admin",
+        password: "1234",
+      }),
+    });
 
-  // Handle login to get token (for simplicity, using hardcoded credentials here)
-  const handleLogin = async () => {
-  const res = await fetch("http://localhost:5000/api/auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      username: "admin",
-      password: "1234",
-    }),
-  });
+    const data = await res.json();
 
-  const data = await res.json();
-  localStorage.setItem("token", data.token); // Store token in localStorage
-  setToken(data.token);
+    console.log("LOGIN RESPONSE:", data);
 
-  console.log("Logged in:", data);
+    if (!data.token) {
+      alert("Login failed");
+      return;
+    }
+
+    localStorage.setItem("token", data.token);
+
+    setToken(data.token);
+
+    alert("Login successful");
+
+    fetchLogs(filter, data.token);
+
+  } catch (error) {
+    console.error("Login error:", error);
+  }
 };
 
-
+// Determine active type filter for table configuration
   const activeType =
   typeof filter === "string" && filter.includes("type=")
     ? filter.split("=")[1]
@@ -49,7 +64,7 @@ function App() {
 
  
   // Fetch logs from backend
-  const fetchLogs = async (filterValue = "") => {
+  const fetchLogs = async (filterValue = "", authToken = token) => {
     try {
       let url = "http://localhost:5000/api/logs";
       if (filterValue) {
@@ -66,7 +81,7 @@ function App() {
       const response = await fetch(url, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Include token in Authorization header
+          Authorization: `Bearer ${authToken}`, // Include token in Authorization header
         },
       }); 
       const data = await response.json();
@@ -79,18 +94,17 @@ function App() {
   // On initial load, check for token and fetch logs
   useEffect(() => {
   const savedToken = localStorage.getItem("token");
-  if (savedToken) {
+  if (savedToken && savedToken !== "undefined") {
     setToken(savedToken);
   }
 }, []);
 
   // Fetch logs on page load and when filter changes
 useEffect(() => {
-  const token = localStorage.getItem("token");
   if (token) {
-    fetchLogs(filter);
+    fetchLogs(filter, token);
   }
-}, [filter]);
+}, [filter, token]); // eslint-disable-line
 
   // Run once when page loads
   useEffect(() => {
@@ -197,7 +211,7 @@ try {
     console.log("DELETE response:", data);
 
     // 🔥 WAIT before refetch
-    await fetchLogs(filter);
+    await fetchLogs(filter, token);
 
   } catch (error) {
     console.error(error);
