@@ -10,6 +10,12 @@ function App() {
 
   const [token, setToken] = useState(""); // Store token for authentication
 
+  const [username, setUsername] = useState(""); // For login form
+
+  const [password, setPassword] = useState(""); // For login form
+
+  const [loginError, setLoginError] = useState(""); // To display login errors 
+
   const [userRole, setUserRole] = useState("Viewer"); // Default role is Viewer
 
   const [filter, setFilter] = useState(""); // e.g. "type=Movement" or "status=Inside"
@@ -29,8 +35,8 @@ const handleLogin = async () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: "admin",
-        password: "1234",
+        username,
+        password,
       }),
     });
 
@@ -38,15 +44,15 @@ const handleLogin = async () => {
 
     console.log("LOGIN RESPONSE:", data);
 
-    if (!data.token) {
-      alert("Login failed");
+    if (!res.ok) {
+      setLoginError(data.message || "Login failed");
       return;
     }
 
     localStorage.setItem("token", data.token);
 
     setToken(data.token);
-
+    setLoginError("");
     alert("Login successful");
 
     fetchLogs(filter, data.token);
@@ -55,6 +61,13 @@ const handleLogin = async () => {
     console.error("Login error:", error);
   }
 };
+
+const handleLogout = () => {
+  localStorage.removeItem("token");
+  setToken("");
+  setLogs([]);
+};
+
 
 // Determine active type filter for table configuration
   const activeType =
@@ -323,9 +336,86 @@ const calculateDuration = (inTime, outTime) => {
   return `${hours}h ${minutes}m`;
 };
 
+
+if (!token) {
+  return (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#f4f4f4",
+      }}
+    >
+      <div
+        style={{
+          background: "white",
+          padding: "30px",
+          borderRadius: "10px",
+          width: "300px",
+          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+        }}
+      >
+        <h2>Trasys Login</h2>
+
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "10px",
+          }}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "10px",
+          }}
+        />
+
+        {loginError && (
+          <p style={{ color: "red" }}>{loginError}</p>
+        )}
+
+        <button
+          onClick={handleLogin}
+          style={{
+            width: "100%",
+            padding: "10px",
+            cursor: "pointer",
+          }}
+        >
+          Login
+        </button>
+      </div>
+    </div>
+  );
+}
+
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
       <h1>Trasys Dashboard</h1>
+
+      <button
+  onClick={handleLogout}
+  style={{
+    marginBottom: "20px",
+    padding: "8px 15px",
+    cursor: "pointer",
+  }}
+>
+  Logout
+</button>
 
       <h4>Current Role: {userRole}</h4>
 
@@ -336,10 +426,6 @@ const calculateDuration = (inTime, outTime) => {
   <option value="APO">APO</option>
   <option value="Viewer">Viewer</option>
 </select>
-
- <button onClick={handleLogin} style={{ marginLeft: "10px" }}>
-  Login as Admin
-</button>
 
 <hr />
 
