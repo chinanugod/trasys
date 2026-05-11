@@ -7,7 +7,7 @@ function App() {
     companyName: "",
     purpose: "",
   });
-  
+
   const [token, setToken] = useState(""); // Store token for authentication
   const [username, setUsername] = useState(""); // For login form
   const [password, setPassword] = useState(""); // For login form
@@ -17,7 +17,7 @@ function App() {
   const [logs, setLogs] = useState([]); // All logs fetched from backend
   const [logType, setLogType] = useState("Movement"); // Default log type
   const [pendingAction, setPendingAction] = useState(null); // Track if we're trying to check IN or OUT
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // For client-side search filtering
 
 
 
@@ -337,6 +337,40 @@ const getRelatedInLog = (log) => {
         new Date(l.createdAt) < new Date(log.createdAt)
     )
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+};
+
+
+const exportToCSV = () => {
+  if (filteredLogs.length === 0) {
+    alert("No logs to export");
+    return;
+  }
+
+  const headers = Object.keys(filteredLogs[0]);
+
+  const csvRows = [
+    headers.join(","),
+
+    ...filteredLogs.map((log) =>
+      headers.map((field) => `"${log[field] || ""}"`).join(",")
+    ),
+  ];
+
+  const csvContent = csvRows.join("\n");
+
+  const blob = new Blob([csvContent], {
+    type: "text/csv",
+  });
+
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "trasys_logs.csv";
+
+  a.click();
+
+  window.URL.revokeObjectURL(url);
 };
 
 const calculateDuration = (inTime, outTime) => {
@@ -831,6 +865,20 @@ const totalVehicles = logs.filter(
       <hr />
 
       <h2>Logs</h2>
+
+      <button
+  onClick={exportToCSV}
+  style={{
+    marginBottom: "10px",
+    marginRight: "10px",
+    padding: "10px",
+    borderRadius: "6px",
+    border: "none",
+    cursor: "pointer",
+  }}
+>
+  Export CSV
+</button>
 
       {userRole === "Admin" && (
         <button style={{ marginBottom: "10px"}} 
