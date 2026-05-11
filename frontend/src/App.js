@@ -404,6 +404,38 @@ if (!token) {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
+
+      <div style={{
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "12px 20px",
+  backgroundColor: "#1f2937",
+  color: "white",
+  borderRadius: "8px",
+  marginBottom: "20px"
+}}>
+  <h2 style={{ margin: 0 }}>TRASYS SECURITY SYSTEM</h2>
+
+  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+    <span style={{ fontSize: "14px" }}>Role: {userRole}</span>
+
+    <button
+      onClick={() => {
+        localStorage.removeItem("token");
+        setToken("");
+        setLogs([]);
+      }}
+      style={{
+        padding: "6px 12px",
+        cursor: "pointer"
+      }}
+    >
+      Logout
+    </button>
+  </div>
+</div>
+
       <h1>Trasys Dashboard</h1>
 
       <button
@@ -442,10 +474,16 @@ if (!token) {
   <hr />
 
   {/* Main Layout */}
-  <div style={{ display: "flex", gap: "50px" }}>
+  <div style={{ display: "flex", gap: "20px" }}>
 
     {/* LEFT SIDE — FORM */} 
-    <div style={{ flex: 1 }}>
+    <div style={{
+  flex: 1,
+  backgroundColor: "white",
+  padding: "20px",
+  borderRadius: "10px",
+  boxShadow: "0 0 10px rgba(0,0,0,0.05)"
+}}>
 
       <h2>Add Log</h2>
 
@@ -596,18 +634,95 @@ if (!token) {
       </div> 
       
       {/* RIGHT SIDE — TABLE + FILTER */} 
-      <div style={{ flex: 2 }}>
+      <div style={{
+  flex: 2,
+  backgroundColor: "white",
+  padding: "20px",
+  borderRadius: "10px",
+  boxShadow: "0 0 10px rgba(0,0,0,0.05)"
+}}>
  
  <h2>Filters</h2>
 
-  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("")}>All</button>
-  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=Movement")}>Movement</button>
-  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=Vehicle")}>Vehicle</button>
-  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=Device")}>Device</button>
-  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=WorkAccess")}>Work Access</button>
-  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("type=CarParkBeat")}>Car Park Beat</button>
-  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("action=IN")}>IN Only</button>
-  <button style={{ marginBottom: "10px", marginRight: "10px" }} onClick={() => setFilter("action=OUT")}>OUT Only</button>
+  <button style={{
+  marginBottom: "10px",
+  marginRight: "10px",
+  padding: "6px 10px",
+  cursor: "pointer",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  backgroundColor: "#f3f4f6"
+}} onClick={() => setFilter("")}>All</button>
+
+  <button style={{
+  marginBottom: "10px",
+  marginRight: "10px",
+  padding: "6px 10px",
+  cursor: "pointer",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  backgroundColor: "#f3f4f6"
+}} onClick={() => setFilter("type=Movement")}>Movement</button>
+  
+  <button style={{
+  marginBottom: "10px",
+  marginRight: "10px",
+  padding: "6px 10px",
+  cursor: "pointer",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  backgroundColor: "#f3f4f6"
+}} onClick={() => setFilter("type=Vehicle")}>Vehicle</button>
+  
+  <button style={{
+  marginBottom: "10px",
+  marginRight: "10px",
+  padding: "6px 10px",
+  cursor: "pointer",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  backgroundColor: "#f3f4f6"
+}} onClick={() => setFilter("type=Device")}>Device</button>
+
+  <button style={{
+  marginBottom: "10px",
+  marginRight: "10px",
+  padding: "6px 10px",
+  cursor: "pointer",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  backgroundColor: "#f3f4f6"
+}} onClick={() => setFilter("type=WorkAccess")}>Work Access</button>
+  
+  <button style={{
+  marginBottom: "10px",
+  marginRight: "10px",
+  padding: "6px 10px",
+   cursor: "pointer",
+   borderRadius: "6px",
+   border: "1px solid #ccc",
+   backgroundColor: "#f3f4f6"
+}} onClick={() => setFilter("type=CarParkBeat")}>Car Park Beat</button>
+  
+  <button style={{
+  marginBottom: "10px",
+  marginRight: "10px",
+  padding: "6px 10px",
+  cursor: "pointer",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  backgroundColor: "#f3f4f6"
+}} onClick={() => setFilter("action=IN")}>IN Only</button>
+
+  <button style={{
+  marginBottom: "10px",
+  marginRight: "10px",
+  padding: "6px 10px",
+  cursor: "pointer",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  backgroundColor: "#f3f4f6"
+}} onClick={() => setFilter("action=OUT")}>OUT Only</button>
 
       <hr />
 
@@ -620,13 +735,14 @@ if (!token) {
       )}
         
       
-      <table border="1" cellPadding="10">
+     <div style={{ overflowX: "auto" }}>
+<table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
               <tr>
                 {columnsToUse.map((col) => (
                 <th key={col.key}>{col.label}</th>
                   ))}
-                <th>Controls</th>
+                <th style={{ padding: "10px", backgroundColor: "#f9fafb" }}>Controls</th>
               </tr>
           </thead>
 
@@ -688,12 +804,13 @@ if (!token) {
     );
   })}
 </tbody>
-         
-      </table>
+</table>
+</div>
       </div>
       </div>
     </div>
   );
 };
+
 
 export default App;
