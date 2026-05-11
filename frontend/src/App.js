@@ -18,6 +18,7 @@ function App() {
   const [logType, setLogType] = useState("Movement"); // Default log type
   const [pendingAction, setPendingAction] = useState(null); // Track if we're trying to check IN or OUT
   const [searchTerm, setSearchTerm] = useState(""); // For client-side search filtering
+  const [darkMode, setDarkMode] = useState(false);
 
 
 
@@ -467,8 +468,23 @@ const totalVehicles = logs.filter(
   (log) => log.type === "Vehicle"
 ).length;
 
+
+const bgColor = darkMode ? "#111827" : "#f3f4f6";
+const cardColor = darkMode ? "#1f2937" : "#ffffff";
+const textColor = darkMode ? "#f9fafb" : "#111827";
+
+
+
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+    <div
+  style={{
+    padding: "20px",
+    fontFamily: "Arial",
+    backgroundColor: bgColor,
+    minHeight: "100vh",
+    color: textColor,
+  }}
+ >
 
       <div style={{
   display: "flex",
@@ -484,6 +500,18 @@ const totalVehicles = logs.filter(
 
   <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
     <span style={{ fontSize: "14px" }}>Role: {userRole}</span>
+
+<button
+  onClick={() => setDarkMode(!darkMode)}
+  style={{
+    padding: "6px 12px",
+    cursor: "pointer",
+    borderRadius: "6px",
+    border: "none"
+  }}
+>
+  {darkMode ? "Light Mode" : "Dark Mode"}
+</button>
 
     <button
       onClick={() => {
@@ -601,7 +629,8 @@ const totalVehicles = logs.filter(
     {/* LEFT SIDE — FORM */} 
     <div style={{
   flex: 1,
-  backgroundColor: "white",
+  backgroundColor: cardColor,
+  color: textColor,
   padding: "20px",
   borderRadius: "10px",
   boxShadow: "0 0 10px rgba(0,0,0,0.05)"
@@ -758,7 +787,8 @@ const totalVehicles = logs.filter(
       {/* RIGHT SIDE — TABLE + FILTER */} 
       <div style={{
   flex: 2,
-  backgroundColor: "white",
+  backgroundColor: cardColor,
+  color: textColor,
   padding: "20px",
   borderRadius: "10px",
   boxShadow: "0 0 10px rgba(0,0,0,0.05)"
