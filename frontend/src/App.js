@@ -7,24 +7,19 @@ function App() {
     companyName: "",
     purpose: "",
   });
-
+  
   const [token, setToken] = useState(""); // Store token for authentication
-
   const [username, setUsername] = useState(""); // For login form
-
   const [password, setPassword] = useState(""); // For login form
-
   const [loginError, setLoginError] = useState(""); // To display login errors 
-
   const [userRole, setUserRole] = useState("Viewer"); // Default role is Viewer
-
   const [filter, setFilter] = useState(""); // e.g. "type=Movement" or "status=Inside"
-  
   const [logs, setLogs] = useState([]); // All logs fetched from backend
-  
   const [logType, setLogType] = useState("Movement"); // Default log type
-
   const [pendingAction, setPendingAction] = useState(null); // Track if we're trying to check IN or OUT
+  const [searchTerm, setSearchTerm] = useState("");
+
+
 
 // Handle login and get token from backend
 const handleLogin = async () => {
@@ -306,6 +301,20 @@ try {
     { label: "Duration", key: "duration" }
   ],
 };
+
+
+const filteredLogs = logs.filter((log) => {
+  const search = searchTerm.toLowerCase();
+
+  return (
+    log.name?.toLowerCase().includes(search) ||
+    log.phone?.toLowerCase().includes(search) ||
+    log.companyName?.toLowerCase().includes(search) ||
+    log.plateNumber?.toLowerCase().includes(search) ||
+    log.driverName?.toLowerCase().includes(search) ||
+    log.serialNumber?.toLowerCase().includes(search)
+  );
+});
 
 // Determine which columns to show based on active type filter
 const columnsToUse =
@@ -723,6 +732,22 @@ const totalVehicles = logs.filter(
  
  <h2>Filters</h2>
 
+ <input
+  type="text"
+  placeholder="Search logs..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  style={{
+    padding: "10px",
+    width: "300px",
+    marginBottom: "15px",
+    borderRadius: "6px",
+    border: "1px solid #ccc"
+  }}
+/>
+
+<br />
+
   <button style={{
   marginBottom: "10px",
   marginRight: "10px",
@@ -826,7 +851,7 @@ const totalVehicles = logs.filter(
           </thead>
 
   <tbody> 
-    {logs.map((log) => {
+    {filteredLogs.map((log) => {
         const columns = columnsToUse;
   
     return (
