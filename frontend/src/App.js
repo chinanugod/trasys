@@ -344,6 +344,7 @@ const calculateDuration = (inTime, outTime) => {
 };
 
 
+
 if (!token) {
   return (
     <div
@@ -408,6 +409,20 @@ if (!token) {
     </div>
   );
 }
+
+const totalLogs = logs.length;
+
+const totalIn = logs.filter(
+  (log) => log.action === "IN"
+).length;
+
+const totalOut = logs.filter(
+  (log) => log.action === "OUT"
+).length;
+
+const totalVehicles = logs.filter(
+  (log) => log.type === "Vehicle"
+).length;
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
@@ -479,6 +494,63 @@ if (!token) {
     </select>
 
   <hr />
+
+<div
+  style={{
+    display: "flex",
+    gap: "15px",
+    marginBottom: "20px",
+    flexWrap: "wrap",
+  }}
+>
+  <div
+    style={{
+      backgroundColor: "#e5ffe5",
+      padding: "15px",
+      borderRadius: "10px",
+      minWidth: "150px",
+    }}
+  >
+    <h3>{totalIn}</h3>
+    <p>Total IN</p>
+  </div>
+
+  <div
+    style={{
+      backgroundColor: "#ffe5e5",
+      padding: "15px",
+      borderRadius: "10px",
+      minWidth: "150px",
+    }}
+  >
+    <h3>{totalOut}</h3>
+    <p>Total OUT</p>
+  </div>
+
+  <div
+    style={{
+      backgroundColor: "#e5f0ff",
+      padding: "15px",
+      borderRadius: "10px",
+      minWidth: "150px",
+    }}
+  >
+    <h3>{totalLogs}</h3>
+    <p>Total Logs</p>
+  </div>
+
+  <div
+    style={{
+      backgroundColor: "#fff7e5",
+      padding: "15px",
+      borderRadius: "10px",
+      minWidth: "150px",
+    }}
+  >
+    <h3>{totalVehicles}</h3>
+    <p>Vehicle Logs</p>
+  </div>
+</div>
 
   {/* Main Layout */}
   <div style={{ display: "flex", gap: "20px" }}>
