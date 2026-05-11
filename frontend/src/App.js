@@ -98,7 +98,13 @@ const handleLogout = () => {
         },
       }); 
       const data = await response.json();
-      setLogs(data);
+
+if (Array.isArray(data)) {
+  setLogs(data);
+} else {
+  console.error("Expected array but got:", data);
+  setLogs([]);
+}
     } catch (error) {
       console.error("Error fetching logs:", error);
     }
@@ -107,7 +113,8 @@ const handleLogout = () => {
   // On initial load, check for token and fetch logs
   useEffect(() => {
   const savedToken = localStorage.getItem("token");
-  if (savedToken && savedToken !== "undefined") {
+
+  if (savedToken) {
     setToken(savedToken);
   }
 }, []);
