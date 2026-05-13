@@ -123,9 +123,14 @@ useEffect(() => {
 }, [filter, token]); // eslint-disable-line
 
   // Run once when page loads
-  useEffect(() => {
-    setFormData({});
-  }, [logType]);
+ useEffect(() => {
+  setFormData({
+    name: "",
+    phone: "",
+    companyName: "",
+    purpose: "",
+  });
+}, [logType]);
 
   // Handle input
   const handleChange = (e) => {
@@ -474,6 +479,14 @@ const cardColor = darkMode ? "#1f2937" : "#ffffff";
 const textColor = darkMode ? "#f9fafb" : "#111827";
 
 
+const inputStyle = {
+  width: "100%",
+  padding: "10px",
+  marginBottom: "12px",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  boxSizing: "border-box",
+};
 
   return (
     <div
@@ -496,13 +509,20 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
   borderRadius: "8px",
   marginBottom: "20px"
 }}>
-  <h2 style={{ margin: 0 }}>TRASYS SECURITY SYSTEM</h2>
+
+
+  <h2 style={{ margin: 0 }}>TRASYS</h2>
+
 
   <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-    <span style={{ fontSize: "14px" }}>Role: {userRole}</span>
+    <span style={{ fontSize: "14px" }}>{userRole}</span>
+    
 
 <button
-  onClick={() => setDarkMode(!darkMode)}
+  onClick={(e) => {
+    e.preventDefault();
+    setDarkMode(!darkMode);
+  }}
   style={{
     padding: "6px 12px",
     cursor: "pointer",
@@ -514,35 +534,28 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
 </button>
 
     <button
-      onClick={() => {
-        localStorage.removeItem("token");
-        setToken("");
-        setLogs([]);
-      }}
-      style={{
-        padding: "6px 12px",
-        cursor: "pointer"
-      }}
-    >
-      Logout
-    </button>
-  </div>
-</div>
-
-      <h1>Trasys Dashboard</h1>
-
-      <button
   onClick={handleLogout}
   style={{
-    marginBottom: "20px",
-    padding: "8px 15px",
+    padding: "6px 12px",
     cursor: "pointer",
+    borderRadius: "6px",
+    border: "none",
   }}
 >
   Logout
 </button>
+  </div>
+</div>
+<p style={{ opacity: 0.7, marginTop: "-10px" }}>
+  Security Operations & Access Monitoring Dashboard
+</p>
 
-      <h4>Current Role: {userRole}</h4>
+
+
+<h2>Dashboard</h2>
+
+
+<h4>Current Role</h4>
 
 <select value={userRole} onChange={(e) => setUserRole(e.target.value)}>
   <option value="Admin">Admin</option>
@@ -554,17 +567,6 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
 
 <hr />
 
-      <h4>Select Log Type</h4>
-
-    <select value={logType} onChange={(e) => setLogType(e.target.value)}>
-    <option value="Movement">Movement</option>
-    <option value="Vehicle">Vehicle</option>
-    <option value="Device">Device</option>
-    <option value="WorkAccess">Work Access</option>
-    <option value="CarParkBeat">Car Park Beat</option>
-    </select>
-
-  <hr />
 
 <div
   style={{
@@ -623,12 +625,34 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
   </div>
 </div>
 
+
+      <h4>Select Log Type</h4>
+
+    <select value={logType} onChange={(e) => setLogType(e.target.value)}>
+    <option value="Movement">Movement</option>
+    <option value="Vehicle">Vehicle</option>
+    <option value="Device">Device</option>
+    <option value="WorkAccess">Work Access</option>
+    <option value="CarParkBeat">Car Park Beat</option>
+    </select>
+
+
+  <hr />
+
   {/* Main Layout */}
-  <div style={{ display: "flex", gap: "20px" }}>
+<div
+  style={{
+    display: "flex",
+    gap: "20px",
+    flexWrap: "wrap",
+    alignItems: "flex-start",
+  }}
+>
 
     {/* LEFT SIDE — FORM */} 
     <div style={{
-  flex: 1,
+  flex: "1",
+  minWidth: "300px",
   backgroundColor: cardColor,
   color: textColor,
   padding: "20px",
@@ -642,41 +666,46 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
 <form onSubmit={handleSubmit}>
   {logType === "Movement" && (
     <>
-      <input name="name" placeholder="Name" value={formData.name || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+     <input
+  name="name"
+  placeholder="Name"
+  value={formData.name || ""}
+  style={inputStyle}
+  onChange={handleChange}
+/>
 
-      <input name="phone" placeholder="Phone" value={formData.phone || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="phone" placeholder="Phone" value={formData.phone || ""} style={inputStyle} onChange={handleChange} />
+      
 
-      <input name="companyName" placeholder="Company" value={formData.companyName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="companyName" placeholder="Company" value={formData.companyName || ""} style={inputStyle} onChange={handleChange} />
+     
 
-      <input name="purpose" placeholder="Purpose" value={formData.purpose || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="purpose" placeholder="Purpose" value={formData.purpose || ""} style={inputStyle} onChange={handleChange} />
+     
     </>
   )}
 
   {logType === "Vehicle" && (
     <>
-      <input name="plateNumber" placeholder="Plate Number" value={formData.plateNumber || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="plateNumber" placeholder="Plate Number" value={formData.plateNumber || ""} style={inputStyle} onChange={handleChange} />
+    
 
-      <input name="vehicleMake" placeholder="Vehicle Make" value={formData.vehicleMake || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="vehicleMake" placeholder="Vehicle Make" value={formData.vehicleMake || ""} style={inputStyle} onChange={handleChange} />
+    
 
-      <input name="driverName" placeholder="Driver Name" value={formData.driverName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="driverName" placeholder="Driver Name" value={formData.driverName || ""} style={inputStyle} onChange={handleChange} />
+     
 
-      <input name="driverPhone" placeholder="Driver Phone" value={formData.driverPhone || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="driverPhone" placeholder="Driver Phone" value={formData.driverPhone || ""} style={inputStyle} onChange={handleChange} />
+     
 
-      <input name="vehicleAuthorization" placeholder="Authorized By" value={formData.vehicleAuthorization || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="vehicleAuthorization" placeholder="Authorized By" value={formData.vehicleAuthorization || ""} style={inputStyle} onChange={handleChange} />
+ 
 
-      <input name="purpose" placeholder="Purpose" value={formData.purpose || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="purpose" placeholder="Purpose" value={formData.purpose || ""} style={inputStyle} onChange={handleChange} />
+ 
 
-      <select name="direction" value={formData.direction} style={{ marginBottom: "10px" }} onChange={handleChange}>
+      <select name="direction" value={formData.direction} style={inputStyle} onChange={handleChange}>
         <option value="">Select Direction</option>
         <option value="From">From</option>
         <option value="To">To</option>       
@@ -694,89 +723,88 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
       }
       value={formData.directionDetail || ""}
       onChange={handleChange}
-      style={{ marginBottom: "10px" }}
+      style={inputStyle}
     />
-    <br /><br />
+   
   </>
 )}
  
-      <input name="cargoDescription" placeholder="Cargo Description" value={formData.cargoDescription || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="cargoDescription" placeholder="Cargo Description" value={formData.cargoDescription || ""} style={inputStyle} onChange={handleChange} />
+   
 
-      <input name="numberOfPassengers" type="number" placeholder="Number of Passengers" value={formData.numberOfPassengers || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="numberOfPassengers" type="number" placeholder="Number of Passengers" value={formData.numberOfPassengers || ""} style={inputStyle} onChange={handleChange} />
+  
     </>
   )}
 
   {logType === "Device" && (
     <>
-      <input name="name" placeholder="Name" value={formData.name || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="name" placeholder="Name" value={formData.name || ""} style={inputStyle} onChange={handleChange} />
+       
       
-      <input name="companyName" placeholder="Company" value={formData.companyName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="companyName" placeholder="Company" value={formData.companyName || ""} style={inputStyle} onChange={handleChange} />
+    
 
-      <input name="deviceDescription" placeholder="Device Description" value={formData.deviceDescription || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="deviceDescription" placeholder="Device Description" value={formData.deviceDescription || ""} style={inputStyle} onChange={handleChange} />
+       
 
-      <input name="serialNumber" placeholder="Serial Number" value={formData.serialNumber || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="serialNumber" placeholder="Serial Number" value={formData.serialNumber || ""} style={inputStyle} onChange={handleChange} />
+    
 
-      <input name="qtyIn" type="number" placeholder="Quantity In" value={formData.qtyIn || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="qtyIn" type="number" placeholder="Quantity In" value={formData.qtyIn || ""} style={inputStyle} onChange={handleChange} />
+    
 
-      <input name="qtyOut" type="number" placeholder="Quantity Out" value={formData.qtyOut || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="qtyOut" type="number" placeholder="Quantity Out" value={formData.qtyOut || ""} style={inputStyle} onChange={handleChange} />
+     
     </> 
   )}
 
   {logType === "WorkAccess" && (
     <>
-      <input name="name" placeholder="Name" value={formData.name || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
-
-      <input name="phone" placeholder="Phone" value={formData.phone || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="name" placeholder="Name" value={formData.name || ""} style={inputStyle} onChange={handleChange} />
       
-      <input name="companyName" placeholder="Company" value={formData.companyName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
 
-      <input name="contactPerson" placeholder="Contact Person" value={formData.contactPerson || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="phone" placeholder="Phone" value={formData.phone || ""} style={inputStyle} onChange={handleChange} />
+       
+      
+      <input name="companyName" placeholder="Company" value={formData.companyName || ""} style={inputStyle} onChange={handleChange} />
+     
 
-      <input name="workArea" placeholder="Work Area" value={formData.workArea || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="contactPerson" placeholder="Contact Person" value={formData.contactPerson || ""} style={inputStyle} onChange={handleChange} />
+       
 
-      <input name="typeOfWork" placeholder="Type of Work" value={formData.typeOfWork || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="workArea" placeholder="Work Area" value={formData.workArea || ""} style={inputStyle} onChange={handleChange} />
+       
 
-      <input name="accessRefNumber" placeholder="Reference Number" value={formData.accessRefNumber || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="typeOfWork" placeholder="Type of Work" value={formData.typeOfWork || ""} style={inputStyle} onChange={handleChange} />
+      
+      <input name="accessRefNumber" placeholder="Reference Number" value={formData.accessRefNumber || ""} style={inputStyle} onChange={handleChange} />
+       
 
-      <input name="workAuthorization" placeholder="Authorized By (comma seperated)" value={formData.workAuthorization || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="workAuthorization" placeholder="Authorized By (comma seperated)" value={formData.workAuthorization || ""} style={inputStyle} onChange={handleChange} />
+     
     </>
   )}
 
   {logType === "CarParkBeat" && (
     <>
-      <input name="driverName" placeholder="Driver Name" value={formData.driverName || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="driverName" placeholder="Driver Name" value={formData.driverName || ""} style={inputStyle} onChange={handleChange} />
+      
 
-      <input name="driverPhone" placeholder="Driver Phone" value={formData.driverPhone || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="driverPhone" placeholder="Driver Phone" value={formData.driverPhone || ""} style={inputStyle} onChange={handleChange} />
+       
 
-      <input name="plateNumber" placeholder="Plate Number" value={formData.plateNumber || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="plateNumber" placeholder="Plate Number" value={formData.plateNumber || ""} style={inputStyle} onChange={handleChange} />
+      
 
-      <input name="vehicleMake" placeholder="Vehicle Make" value={formData.vehicleMake || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="vehicleMake" placeholder="Vehicle Make" value={formData.vehicleMake || ""} style={inputStyle} onChange={handleChange} />
+      
 
-      <input name="vehicleColor" placeholder="Vehicle Color" value={formData.vehicleColor || ""} style={{ marginBottom: "10px" }} onChange={handleChange} />
-      <br /><br />
+      <input name="vehicleColor" placeholder="Vehicle Color" value={formData.vehicleColor || ""} style={inputStyle} onChange={handleChange} />
+       
 
-      <textarea name="remarks" placeholder="Remarks" value={formData.remarks || ""} style={{ marginBottom: "10px", height: "60px" }} onChange={handleChange} />
-      <br /><br />
+      <textarea name="remarks" placeholder="Remarks" value={formData.remarks || ""} style={inputStyle} onChange={handleChange} />
+      
     </>
   )}
 
@@ -786,7 +814,8 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
       
       {/* RIGHT SIDE — TABLE + FILTER */} 
       <div style={{
-  flex: 2,
+  flex: "2",
+  minWidth: "600px",
   backgroundColor: cardColor,
   color: textColor,
   padding: "20px",
@@ -911,9 +940,18 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
 </button>
 
       {userRole === "Admin" && (
-        <button style={{ marginBottom: "10px"}} 
-        onClick={handleClearAll}>Clear All Logs
-        </button>
+        <button
+  onClick={handleClearAll}
+  style={{
+    marginBottom: "10px",
+    padding: "10px 14px",
+    borderRadius: "6px",
+    border: "none",
+    cursor: "pointer",
+  }}
+>
+  Clear All Logs
+</button>
       )}
         
       
@@ -922,9 +960,26 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
           <thead>
               <tr>
                 {columnsToUse.map((col) => (
-                <th key={col.key}>{col.label}</th>
+                <th
+  key={col.key}
+  style={{
+    padding: "12px",
+    backgroundColor: darkMode ? "#374151" : "#f3f4f6",
+    textAlign: "left",
+    fontSize: "14px",
+  }}
+>
+  {col.label}
+</th>
                   ))}
-                <th style={{ padding: "10px", backgroundColor: "#f9fafb" }}>Controls</th>
+                <th
+  style={{
+    padding: "12px",
+    backgroundColor: darkMode ? "#374151" : "#f3f4f6",
+    textAlign: "left",
+    fontSize: "14px",
+  }}
+>Controls</th>
               </tr>
           </thead>
 
@@ -940,7 +995,14 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
       }}
       >
         {columns.map((col) => (
-          <td key={col.key}>
+          <td
+  key={col.key}
+  style={{
+    padding: "10px",
+    borderBottom: "1px solid #ddd",
+    fontSize: "14px",
+  }}
+>
             {col.key === "createdAt"
               ? new Date(log.createdAt).toLocaleString()
               : col.key === "action"
@@ -965,15 +1027,31 @@ const textColor = darkMode ? "#f9fafb" : "#111827";
           </td>
         ))}
 
-        <td>
+        <td style={{ padding: "10px" }}>
           {log.action === "OUT" && userRole !== "Viewer" && (
-          <button onClick={() => handleCheck(log, "IN")}>
+          <button
+  onClick={() => handleCheck(log, "IN")}
+  style={{
+    padding: "6px 10px",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+  }}
+>
             Check-In
           </button>
           )}
           
           {log.action === "IN" && userRole !== "Viewer" && (
-          <button onClick={() => handleCheck(log, "OUT")}>
+          <button
+  onClick={() => handleCheck(log, "OUT")}
+  style={{
+    padding: "6px 10px",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+  }}
+>
             Check-Out
           </button>
           )}
